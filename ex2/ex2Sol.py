@@ -1,12 +1,8 @@
-
-
-# hidden markov model
 import nltk
 import numpy as np
-
 from ex2.HMMBigramClass import HMMBigramTaggerCLass
 
-# Q2.a:
+# <editor-fold desc="Q2.a">
 def getTaggedSents():
     tagged_sents = np.array(nltk.corpus.brown.tagged_sents())
     corpus_size = tagged_sents.size
@@ -15,8 +11,9 @@ def getTaggedSents():
     train_sents = tagged_sents[:round(corpus_size * 0.9)]
     return train_sents, test_sents
 
+# </editor-fold>
 
-# Q2.b
+# <editor-fold desc="Q2.b">
 class MostLikelyTagBaseline:
     def __init__(self):
         self._words_tag_count = dict()
@@ -63,13 +60,13 @@ def base():
     error = b.test(test_sentences=test_sentences)
     return error
 
+# </editor-fold>
 
-
-# Q2.c
+# <editor-fold desc="Q2.c">
 def HMMbigramTagger(train_sents, test_sents):
     tagger = HMMBigramTaggerCLass()
     tagger.train(train_sents)
     tagger.tag("signal")
 
-train_sents, test_sents = getTaggedSents()
-HMMbigramTagger(train_sents, test_sents)
+# </editor-fold>
+
