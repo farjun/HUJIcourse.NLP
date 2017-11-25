@@ -2,6 +2,7 @@ import nltk
 import numpy as np
 from ex2.HMMBigramClass import HMMBigramTaggerCLass
 
+
 # <editor-fold desc="Q2.a">
 def getTaggedSents():
     tagged_sents = np.array(nltk.corpus.brown.tagged_sents())
@@ -10,6 +11,7 @@ def getTaggedSents():
     test_sents = tagged_sents[round(corpus_size * 0.9):corpus_size]
     train_sents = tagged_sents[:round(corpus_size * 0.9)]
     return train_sents, test_sents
+
 
 # </editor-fold>
 
@@ -51,7 +53,8 @@ class MostLikelyTagBaseline:
                     right += 1
                 else:
                     wrong += 1
-        return (wrong/(right+wrong))
+        return (wrong / (right + wrong))
+
 
 def base():
     train_sentences, test_sentences = getTaggedSents()
@@ -59,6 +62,7 @@ def base():
     b.train(train_sentences=train_sentences)
     error = b.test(test_sentences=test_sentences)
     return error
+
 
 # </editor-fold>
 
