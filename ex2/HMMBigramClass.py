@@ -39,7 +39,7 @@ class HMMBigramTaggerCLass:
         self.setDics(train_sentences)
         self.countWords(train_sentences)
 
-
+#
     def tag(self,sentence):
         n = len(sentence)
         Sk = []
