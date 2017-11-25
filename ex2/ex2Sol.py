@@ -69,6 +69,7 @@ def base():
 def HMMbigramTagger(train_sents, test_sents):
     tagger = HMMBigramTaggerCLass()
     tagger.train(train_sents)
+    tagger.tag("signal")
 
 train_sents, test_sents = getTaggedSents()
 HMMbigramTagger(train_sents, test_sents)
