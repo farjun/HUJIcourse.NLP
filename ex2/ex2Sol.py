@@ -4,13 +4,13 @@ from ex2.HMMBigramClass import HMMBigramTagger as HMM
 from ex2.MostLikelyTagBaseline import MostLikelyTagBaseline as MLT
 
 # <editor-fold desc="Q2.a">
-def getTaggedSents():
+def getTaggedSentences():
     tagged_sents = np.array(nltk.corpus.brown.tagged_sents())
     corpus_size = tagged_sents.size
     # splits the data into 2 sets - train and test set
-    test_sents = tagged_sents[round(corpus_size * 0.9):corpus_size]
-    train_sents = tagged_sents[:round(corpus_size * 0.9)]
-    return train_sents, test_sents
+    test_sentences = tagged_sents[round(corpus_size * 0.9):corpus_size]
+    train_sentences = tagged_sents[:round(corpus_size * 0.9)]
+    return train_sentences, test_sentences
 
 
 # </editor-fold>
@@ -66,4 +66,6 @@ def HMMbigramTaggerWithPseudoAndSmooth(train_sentences, test_sentences,pseudo_wo
     return error
 
 # </editor-fold>
+
+
 
