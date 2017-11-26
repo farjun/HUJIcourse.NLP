@@ -10,16 +10,18 @@ class HMMBigramTagger:
 
     def train(self, train_sentences):
         for sentence in train_sentences:
-            for i in range(len(sentence) - 1):
-                word, tag = sentence[i]
+            for i in range(-1, len(sentence) - 1):
+                if i == -1:
+                    word, tag = "START", '*'
+                else:
+                    word, tag = sentence[i]
                 _, next_tag = sentence[i + 1]
                 self._updateWordToTag(tag=tag, word=word)
                 self._updateTagToNextTag(tag=tag, next_tag=next_tag)
                 self._updateTagCount(tag=tag)
 
-    def test(self,test_sentences) -> float:
+    def test(self, test_sentences) -> float:
         pass
-
 
     def _updateTagCount(self, tag):
         if tag not in self._tags_count:
@@ -46,11 +48,14 @@ class HMMBigramTagger:
     def _getPossibleTags(self):
         return list(self._tags_count.keys())
 
-
     def doAdd1Smooth(self):
+        possible_tags = self._getPossibleTags()
         for tag_count_map in self._word_to_tag_count.values():
-            for tag in tag_count_map.keys():
-                tag_count_map[tag] +=1
+            for tag in possible_tags:
+                if tag not in tag_count_map:
+                    tag_count_map[tag] = 1
+                else:
+                    tag_count_map[tag] += 1
 
     def tag(self, sentence):
         n = len(sentence)
@@ -63,8 +68,6 @@ class HMMBigramTagger:
         Sk.append(["*"])
         probMatrix = self.setPorbMatrix(n, sentence)
 
-
-
     def setPorbMatrix(self, Sk, sentence):
         sentence_length = len(sentence)
         number_of_tags = len(Sk)
@@ -74,6 +77,6 @@ class HMMBigramTagger:
         # set probability of Stop to 1 in all rows
         probabilityMAtrix[:-1] = 1
 
-        for i in range(1,sentence_length):
+        for i in range(1, sentence_length):
             for j in range(number_of_tags):
-                probabilityMAtrix[i,j]=0
+                probabilityMAtrix[i, j] = 0
