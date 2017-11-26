@@ -17,6 +17,7 @@ class HMMBigramTagger:
                 self._updateTagToNextTag(tag=tag, next_tag=next_tag)
                 self._updateTagCount(tag=tag)
 
+
     def test(self,test_sentences) -> float:
         pass
 
@@ -43,17 +44,31 @@ class HMMBigramTagger:
         else:
             self._word_to_tag_count[word][tag] += 1
 
-    def setPorbMatrix(self, number_of_possible_tags, sentence):
-        n = len(sentence)
-        return np.zeros((number_of_possible_tags, n))
+    def setPorbMatrix(self, Sk, sentence):
+        sentence_length = len(sentence)
+        number_of_tags = len(Sk)
+        probabilityMAtrix = np.zeros((number_of_tags, sentence_length))
+        # set probability of Start to 1 in all rows
+        probabilityMAtrix[:0] = 1
+        # set probability of Stop to 1 in all rows
+        probabilityMAtrix[:-1] = 1
+
+        for i in range(1,sentence_length):
+            for j in range(number_of_tags):
+                probabilityMAtrix[i,j]=0
+
+
+
+
+
 
     def _getPossibleTags(self):
-        # TODO check it....
         return list(self._tags_count.keys())
 
     def doAdd1Smooth(self):
         # TODO implement me!!!!!!!!!!!!!!!!!!!!!!!1
         pass
+
 
 
     def tag(self, sentence):
@@ -65,4 +80,4 @@ class HMMBigramTagger:
         for i in range(1, n):
             Sk.append(list_of_possible_tags[:])
         Sk.append(["*"])
-        probMatrix = self.setPorbMatrix(n, sentence)
+        probMatrix = self.setPorbMatrix(Sk, sentence)
