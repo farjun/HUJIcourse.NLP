@@ -1,11 +1,12 @@
 import numpy as np
 
 
-class HMMBigramTaggerCLass:
-    def __init__(self):
+class HMMBigramTagger:
+    def __init__(self, pseudo_words_to_tag=None):
         self._word_to_tag_count = {}
         self._tag_to_next_tag_count = {}
         self._tags_count = {}
+        self._pseudo_words_to_tag = pseudo_words_to_tag
 
     def train(self, train_sentences):
         for sentence in train_sentences:
@@ -45,6 +46,14 @@ class HMMBigramTaggerCLass:
     def _getPossibleTags(self):
         # TODO check it....
         return list(self._tags_count.keys())
+
+    def doAdd1Smooth(self):
+        # TODO implement me!!!!!!!!!!!!!!!!!!!!!!!1
+        pass
+
+    def test(self,test_sentences) -> float:
+
+        pass
 
     def tag(self, sentence):
         n = len(sentence)

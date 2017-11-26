@@ -1,7 +1,7 @@
 import nltk
 import numpy as np
-from ex2.HMMBigramClass import HMMBigramTaggerCLass
-
+from ex2.HMMBigramClass import HMMBigramTagger as HMM
+from ex2.MostLikelyTagBaseline import MostLikelyTagBaseline as MLT
 
 # <editor-fold desc="Q2.a">
 def getTaggedSents():
@@ -16,49 +16,8 @@ def getTaggedSents():
 # </editor-fold>
 
 # <editor-fold desc="Q2.b">
-class MostLikelyTagBaseline:
-    def __init__(self):
-        self._words_tag_count = dict()
-        pass
-
-    def train(self, train_sentences):
-        for sentence in train_sentences:
-            for word, tag in sentence:
-                if word not in self._words_tag_count:
-                    self._words_tag_count[word] = dict()
-                if tag not in self._words_tag_count[word]:
-                    self._words_tag_count[word][tag] = 1
-                else:
-                    self._words_tag_count[word][tag] += 1
-
-    def _getBestTag(self, word):
-        if word not in self._words_tag_count:
-            return "NN"
-        tagsMap = self._words_tag_count[word]
-        bestTag = "NN"
-        bestCount = 0
-        for tag, count in tagsMap.items():
-            if count > bestCount:
-                bestTag = tag
-                bestCount = count
-        return bestTag
-
-    def test(self, test_sentences):
-        wrong = 0
-        right = 0
-        for sentence in test_sentences:
-            for word, actualTag in sentence:
-                expectedTag = self._getBestTag(word)
-                if expectedTag == actualTag:
-                    right += 1
-                else:
-                    wrong += 1
-        return (wrong / (right + wrong))
-
-
-def base():
-    train_sentences, test_sentences = getTaggedSents()
-    b = MostLikelyTagBaseline()
+def base(train_sentences, test_sentences):
+    b = MLT()
     b.train(train_sentences=train_sentences)
     error = b.test(test_sentences=test_sentences)
     return error
@@ -67,10 +26,44 @@ def base():
 # </editor-fold>
 
 # <editor-fold desc="Q2.c">
-def HMMbigramTagger(train_sents, test_sents):
-    tagger = HMMBigramTaggerCLass()
-    tagger.train(train_sents)
-    tagger.tag("signal")
+
+def HMMbigramTagger(train_sentences, test_sentences):
+    tagger = HMM()
+    tagger.train(train_sentences=train_sentences)
+    error = tagger.test(test_sentences=test_sentences)
+    return error
+
+# </editor-fold>
+
+# <editor-fold desc="Q2.d">
+
+def HMMbigramTaggerWithSmooth(train_sentences, test_sentences):
+    tagger = HMM()
+    tagger.train(train_sentences=train_sentences)
+    tagger.doAdd1Smooth()
+    error = tagger.test(test_sentences=test_sentences)
+    return error
+
+# </editor-fold>
+
+# <editor-fold desc="Q2.e">
+
+def HMMbigramTaggerWithPseudo(train_sentences, test_sentences,pseudo_words_to_tag):
+    tagger = HMM(pseudo_words_to_tag=pseudo_words_to_tag)
+    tagger.train(train_sentences=train_sentences)
+    error = tagger.test(test_sentences=test_sentences)
+    return error
+
+# </editor-fold>
+
+# <editor-fold desc="Q2.e iii">
+
+def HMMbigramTaggerWithPseudoAndSmooth(train_sentences, test_sentences,pseudo_words_to_tag):
+    tagger = HMM(pseudo_words_to_tag=pseudo_words_to_tag)
+    tagger.train(train_sentences=train_sentences)
+    tagger.doAdd1Smooth()
+    error = tagger.test(test_sentences=test_sentences)
+    return error
 
 # </editor-fold>
 
