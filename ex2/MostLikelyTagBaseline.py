@@ -13,18 +13,6 @@ class MostLikelyTagBaseline:
                 else:
                     self._words_tag_count[word][tag] += 1
 
-    def _getBestTag(self, word):
-        if word not in self._words_tag_count:
-            return "NN"
-        tagsMap = self._words_tag_count[word]
-        bestTag = "NN"
-        bestCount = 0
-        for tag, count in tagsMap.items():
-            if count > bestCount:
-                bestTag = tag
-                bestCount = count
-        return bestTag
-
     def test(self, test_sentences):
         wrong = 0
         right = 0
@@ -36,3 +24,15 @@ class MostLikelyTagBaseline:
                 else:
                     wrong += 1
         return (wrong / (right + wrong))
+
+    def _getBestTag(self, word):
+        if word not in self._words_tag_count:
+            return "NN"
+        tagsMap = self._words_tag_count[word]
+        bestTag = "NN"
+        bestCount = 0
+        for tag, count in tagsMap.items():
+            if count > bestCount:
+                bestTag = tag
+                bestCount = count
+        return bestTag

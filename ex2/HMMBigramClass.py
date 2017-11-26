@@ -17,6 +17,10 @@ class HMMBigramTagger:
                 self._updateTagToNextTag(tag=tag, next_tag=next_tag)
                 self._updateTagCount(tag=tag)
 
+    def test(self,test_sentences) -> float:
+        pass
+
+
     def _updateTagCount(self, tag):
         if tag not in self._tags_count:
             self._tags_count[tag] = 1
@@ -51,9 +55,6 @@ class HMMBigramTagger:
         # TODO implement me!!!!!!!!!!!!!!!!!!!!!!!1
         pass
 
-    def test(self,test_sentences) -> float:
-
-        pass
 
     def tag(self, sentence):
         n = len(sentence)
