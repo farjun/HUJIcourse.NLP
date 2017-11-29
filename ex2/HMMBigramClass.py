@@ -2,7 +2,7 @@ import numpy as np
 
 
 class HMMBigramTagger:
-    def __init__(self, pseudo_words_to_tag=None, delta=0):
+    def __init__(self, pseudo_words_to_tag=None):
         self._word_to_tag_count = {}
         self._tag_to_next_tag_count = {}
         self._tags_count = {}
@@ -46,6 +46,15 @@ class HMMBigramTagger:
         else:
             self._word_to_tag_count[word][tag] += 1
 
+    def _getQProbability(self , cur_tag , perv_tag):
+        if cur_tag not in self._tags_count:
+            return 0
+        if perv_tag in self._tag_to_next_tag_count:
+            if cur_tag in self._tag_to_next_tag_count[perv_tag]:
+                return self._tags_count[perv_tag][cur_tag] / self._tags_count[cur_tag]
+
+
+
     def findMaxProbabilityFromLastColum(self, probability_matrix_column, word, possible_prev_tags, cur_tag):
         tag_probabilities = []
 
@@ -55,11 +64,12 @@ class HMMBigramTagger:
         emission = self._word_to_tag_count[word][cur_tag]
 
         for j in range(len(possible_prev_tags)):
+
             prev_tag = possible_prev_tags[j]
-            p = self._tag_to_next_tag_count[prev_tag][cur_tag] / self._tags_count[prev_tag]
+            p = self._tag_to_next_tag_count[prev_tag][cur_tag]/ self._tags_count[prev_tag]
             pi = probability_matrix_column[j]
 
-            tag_probabilities.append(p * emission * pi)
+            tag_probabilities.append(p*emission*pi)
         return max(tag_probabilities)
 
     def setPorbMatrix(self, Sk, sentence):
@@ -72,10 +82,9 @@ class HMMBigramTagger:
         # set probability of Stop to 1 in all rows
         probabilityMAtrix[:-1] = 1
 
-        for i in range(1, sentence_length):
+        for i in range(1,sentence_length):
             for j in range(number_of_tags):
-                probabilityMAtrix[i, j] = self.findMaxProbabilityFromLastColum(probabilityMAtrix[i:], sentence[i],
-                                                                               Sk[i], Sk[i][j])
+                probabilityMAtrix[i,j] = self.findMaxProbabilityFromLastColum(probabilityMAtrix[i:],sentence[i],Sk[i],Sk[i][j])
 
         return probabilityMAtrix
 
