@@ -49,6 +49,9 @@ class HMMBigramTagger:
     def findMaxProbabilityFromLastColum(self, probability_matrix_column, word, possible_prev_tags, cur_tag):
         tag_probabilities = []
 
+        print("word : ",word)
+        print("cur_tag : ", cur_tag)
+
         emission = self._word_to_tag_count[word][cur_tag]
 
         for j in range(len(possible_prev_tags)):
