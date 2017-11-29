@@ -45,6 +45,13 @@ class HMMBigramTagger:
         else:
             self._word_to_tag_count[word][tag] += 1
 
+    def _getQProbability(self , cur_tag , perv_tag):
+        if cur_tag not in self._tags_count:
+            return 0
+        if perv_tag in self._tag_to_next_tag_count:
+            if cur_tag in self._tag_to_next_tag_count[perv_tag]:
+                return self._tags_count[perv_tag][cur_tag] / self._tags_count[cur_tag]
+
 
 
     def findMaxProbabilityFromLastColum(self, probability_matrix_column, word, possible_prev_tags, cur_tag):

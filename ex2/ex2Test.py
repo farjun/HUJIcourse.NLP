@@ -3,5 +3,5 @@ from ex2.ex2Sol import *
 words,test = getTaggedSentences()
 a = HMMBigramTagger()
 a.train(words)
-a.tag(["the"])
+a.tag(["the","the","me","you"])
 
