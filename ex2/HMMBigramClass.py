@@ -2,11 +2,12 @@ import numpy as np
 
 
 class HMMBigramTagger:
-    def __init__(self, pseudo_words_to_tag=None):
+    def __init__(self, pseudo_words_to_tag=None, delta=0):
         self._word_to_tag_count = {}
         self._tag_to_next_tag_count = {}
         self._tags_count = {}
         self._pseudo_words_to_tag = pseudo_words_to_tag
+        self._delta = delta
 
     def train(self, train_sentences):
         for sentence in train_sentences:
@@ -45,20 +46,17 @@ class HMMBigramTagger:
         else:
             self._word_to_tag_count[word][tag] += 1
 
-
-
     def findMaxProbabilityFromLastColum(self, probability_matrix_column, word, possible_prev_tags, cur_tag):
         tag_probabilities = []
 
         emission = self._word_to_tag_count[word][cur_tag]
 
         for j in range(len(possible_prev_tags)):
-
             prev_tag = possible_prev_tags[j]
-            p = self._tag_to_next_tag_count[prev_tag][cur_tag]/ self._tags_count[prev_tag]
+            p = self._tag_to_next_tag_count[prev_tag][cur_tag] / self._tags_count[prev_tag]
             pi = probability_matrix_column[j]
 
-            tag_probabilities.append(p*emission*pi)
+            tag_probabilities.append(p * emission * pi)
         return max(tag_probabilities)
 
     def setPorbMatrix(self, Sk, sentence):
@@ -71,9 +69,10 @@ class HMMBigramTagger:
         # set probability of Stop to 1 in all rows
         probabilityMAtrix[:-1] = 1
 
-        for i in range(1,sentence_length):
+        for i in range(1, sentence_length):
             for j in range(number_of_tags):
-                probabilityMAtrix[i,j] = self.findMaxProbabilityFromLastColum(probabilityMAtrix[i:],sentence[i],Sk[i],Sk[i][j])
+                probabilityMAtrix[i, j] = self.findMaxProbabilityFromLastColum(probabilityMAtrix[i:], sentence[i],
+                                                                               Sk[i], Sk[i][j])
 
         return probabilityMAtrix
 
@@ -100,3 +99,12 @@ class HMMBigramTagger:
 
         probMatrix = self.setPorbMatrix(Sk, sentence)
         print(probMatrix)
+
+    def getImission(self, tag, word):
+        if tag not in self._word_to_tag_count[word]:
+            return 0
+        apperance = self._word_to_tag_count[word][tag] + self._delta
+        totalTag = self._tags_count[tag] + len(self._word_to_tag_count)*self._delta
+        return apperance/totalTag
+
+
