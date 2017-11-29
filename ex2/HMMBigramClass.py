@@ -2,7 +2,7 @@ import numpy as np
 
 
 class HMMBigramTagger:
-    def __init__(self, pseudo_words_to_tag=None):
+    def __init__(self, pseudo_words_to_tag=None,delta = 0):
         self._word_to_tag_count = {}
         self._tag_to_next_tag_count = {}
         self._tags_count = {}
@@ -51,40 +51,41 @@ class HMMBigramTagger:
             return 0
         if perv_tag in self._tag_to_next_tag_count:
             if cur_tag in self._tag_to_next_tag_count[perv_tag]:
-                return self._tags_count[perv_tag][cur_tag] / self._tags_count[cur_tag]
+                return self._tag_to_next_tag_count[perv_tag][cur_tag] / self._tags_count[cur_tag]
+
+        return 0
 
 
 
-    def findMaxProbabilityFromLastColum(self, probability_matrix_column, word, possible_prev_tags, cur_tag):
+    def findMaxProbabilityFromLastColum(self, probability_matrix_row, word, possible_prev_tags, cur_tag):
         tag_probabilities = []
 
         print("word : ",word)
         print("cur_tag : ", cur_tag)
 
-        emission = self._word_to_tag_count[word][cur_tag]
+        emission = self.getEmission(cur_tag,word)
 
         for j in range(len(possible_prev_tags)):
 
-            prev_tag = possible_prev_tags[j]
-            p = self._tag_to_next_tag_count[prev_tag][cur_tag]/ self._tags_count[prev_tag]
-            pi = probability_matrix_column[j]
+            perv_tag = possible_prev_tags[j]
+            q = self._getQProbability(cur_tag,perv_tag)
+            pi = probability_matrix_row[j]
 
-            tag_probabilities.append(p*emission*pi)
+            tag_probabilities.append(q*emission*pi)
+            print("probability of them: ", q*emission*pi)
         return max(tag_probabilities)
 
     def setPorbMatrix(self, Sk, sentence):
         sentence_length = len(sentence)
-        number_of_tags = len(Sk)
-        probabilityMAtrix = np.zeros((number_of_tags, sentence_length))
+        number_of_tags = len(Sk[1])
+        probabilityMAtrix = np.zeros((sentence_length, number_of_tags))
 
         # set probability of Start to 1 in all rows
-        probabilityMAtrix[:0] = 1
-        # set probability of Stop to 1 in all rows
-        probabilityMAtrix[:-1] = 1
+        probabilityMAtrix[0] = 1
 
         for i in range(1,sentence_length):
             for j in range(number_of_tags):
-                probabilityMAtrix[i,j] = self.findMaxProbabilityFromLastColum(probabilityMAtrix[i:],sentence[i],Sk[i],Sk[i][j])
+                probabilityMAtrix[i,j] = self.findMaxProbabilityFromLastColum(probabilityMAtrix[i-1],sentence[i],Sk[i-1],Sk[i][j])
 
         return probabilityMAtrix
 
@@ -112,7 +113,7 @@ class HMMBigramTagger:
         probMatrix = self.setPorbMatrix(Sk, sentence)
         print(probMatrix)
 
-    def getImission(self, tag, word):
+    def getEmission(self, tag, word):
         if tag not in self._word_to_tag_count[word]:
             return 0
         apperance = self._word_to_tag_count[word][tag] + self._delta
