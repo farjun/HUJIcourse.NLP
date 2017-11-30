@@ -152,14 +152,15 @@ class HMMBigramTagger:
         # set probability of Start to 1 in all rows
         probabilityMatrix[0] = 1
         backPointersIndexes[0] = 0
+        possible_prev_tags = Sk[0]
         for i in range(1, sentence_length):
             word = sentence[i]
             probability_matrix_row = probabilityMatrix[i - 1]
-            possible_prev_tags = Sk[min(i - 1, 1)]
 
             for j in range(number_of_tags):
                 probabilityMatrix[i, j], backPointersIndexes[i, j] = \
                     self.__findMaxProbabilityFromLastRow(probability_matrix_row, word, possible_prev_tags, Sk[1][j])
+            possible_prev_tags = Sk[1]
         return probabilityMatrix, backPointersIndexes
 
     def __getPossibleTags(self) -> list:
