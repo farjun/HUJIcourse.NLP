@@ -31,17 +31,16 @@ def HMMbigramTagger(train_sentences, test_sentences):
     tagger = HMM()
     tagger.train(train_sentences=train_sentences)
     error = tagger.test(test_sentences=test_sentences)
-    tagger.tag(["the", "me"])
-    return error
+    # tagger.tag(["the", "me"])
+    # return error
 
 # </editor-fold>
 
 # <editor-fold desc="Q2.d">
 
 def HMMbigramTaggerWithSmooth(train_sentences, test_sentences):
-    tagger = HMM()
+    tagger = HMM(delta=1)
     tagger.train(train_sentences=train_sentences)
-    tagger.doAdd1Smooth()
     error = tagger.test(test_sentences=test_sentences)
     return error
 
@@ -60,9 +59,8 @@ def HMMbigramTaggerWithPseudo(train_sentences, test_sentences,pseudo_words_to_ta
 # <editor-fold desc="Q2.e iii">
 
 def HMMbigramTaggerWithPseudoAndSmooth(train_sentences, test_sentences,pseudo_words_to_tag):
-    tagger = HMM(pseudo_words_to_tag=pseudo_words_to_tag)
+    tagger = HMM(pseudo_words_to_tag=pseudo_words_to_tag, delta=1)
     tagger.train(train_sentences=train_sentences)
-    tagger.doAdd1Smooth()
     error = tagger.test(test_sentences=test_sentences)
     return error
 
