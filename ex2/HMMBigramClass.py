@@ -72,17 +72,18 @@ class HMMBigramTagger:
     def __generateSK(self):
         self.__sk = [["*"]] + [self.__getPossibleTags()]
 
+    def __getPossibleTags(self) -> list:
+        return list(self.__tags_count.keys())
+
     def _computeError(self, out_tags, correct_tags):
         self.__words_counter += len(out_tags)
         self.__correct_words_counter += \
             np.sum(np.array(out_tags, dtype=np.str) == np.array(correct_tags, dtype=np.str))
 
-
     def __tag(self, sentence: list) -> list:
         # set Sk (tags)
-        n = len(sentence)
-        list_of_possible_tags = self.__getPossibleTags()
         Sk = self.__sk
+        list_of_possible_tags = Sk[1]
 
         # add start to the sentence
         probMatrix, backPointers = self.getPorbMatrix(Sk, [("Start", "*")] + sentence)
@@ -93,7 +94,10 @@ class HMMBigramTagger:
             if prob > bestProb:
                 bestProb = prob
                 bestProbIndex = i
+        tags = self.__constructTags(backPointers, bestProbIndex, list_of_possible_tags, sentence)
+        return tags
 
+    def __constructTags(self, backPointers, bestProbIndex, list_of_possible_tags, sentence):
         tags = []
         index = bestProbIndex
         for i in range(len(sentence), 0, -1):
@@ -163,16 +167,7 @@ class HMMBigramTagger:
             possible_prev_tags = Sk[1]
         return probabilityMatrix, backPointersIndexes
 
-    def __getPossibleTags(self) -> list:
-        return list(self.__tags_count.keys())
-
     # </editor-fold>
 
     def aaa(self):
         pass
-
-    def _zipTagsWithSentence(self, sentence, tags):
-        tagged_sentence = []
-        for i in range(len(sentence)):
-            tagged_sentence.append((sentence[i][0], tags[i]))
-        return tagged_sentence
