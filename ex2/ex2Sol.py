@@ -31,8 +31,7 @@ def HMMbigramTagger(train_sentences, test_sentences):
     tagger = HMM()
     tagger.train(train_sentences=train_sentences)
     error = tagger.test(test_sentences=test_sentences)
-    # tagger.tag(["the", "me"])
-    # return error
+    return error
 
 # </editor-fold>
 
