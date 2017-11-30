@@ -62,35 +62,30 @@ class HMMBigramTagger:
 
     # <editor-fold desc="Test">
     def test(self, test_sentences) -> float:
+        self.__generateSK()
         for cur_sentence in test_sentences:
-            tagged_sentence = self.__tag(sentence=cur_sentence)
-            self._computeError(tagged_sentence, cur_sentence)
-        return self.__correct_words_counter/self.__words_counter
+            sentence = list(map(lambda var: var[0], cur_sentence))  # remove tags
+            tagged_sentence = self.__tag(sentence=sentence)
+            self._computeError(tagged_sentence, list(map(lambda var: var[1], cur_sentence)))
+        return self.__correct_words_counter / self.__words_counter
 
-    def _computeError(self, tagged_sentence, correct_sentence):
-        self.__words_counter += len(tagged_sentence)
-        for i in range(len(tagged_sentence)):
-            if tagged_sentence == correct_sentence:
-                self.__correct_words_counter += 1
+    def __generateSK(self):
+        self.__sk = [["*"]] + [self.__getPossibleTags()]
 
-    def _zipTagsWithSentence(self,sentence,tags):
-        tagged_sentence = []
-        for i in range(len(sentence)):
-            tagged_sentence.append((sentence[i][0],tags[i]))
-        return tagged_sentence
+    def _computeError(self, out_tags, correct_tags):
+        self.__words_counter += len(out_tags)
+        self.__correct_words_counter += \
+            np.sum(np.array(out_tags, dtype=np.str) == np.array(correct_tags, dtype=np.str))
+
 
     def __tag(self, sentence: list) -> list:
-        #
         # set Sk (tags)
         n = len(sentence)
         list_of_possible_tags = self.__getPossibleTags()
-        Sk = [["*"]] + [list_of_possible_tags[:] for _ in range(n)]
+        Sk = self.__sk
 
         # add start to the sentence
-        sentenceCopy = sentence[:]
-        sentenceCopy.insert(0, ("Start", "*"))
-        probMatrix,backPointers = self.setPorbMatrix(Sk, sentenceCopy)
-
+        probMatrix, backPointers = self.getPorbMatrix(Sk, [("Start", "*")] + sentence)
         bestProbIndex = -1
         bestProb = 0
         for i in range(len(probMatrix[-1])):
@@ -101,14 +96,14 @@ class HMMBigramTagger:
 
         tags = []
         index = bestProbIndex
-        for i in range(len(sentence),0,-1):
+        for i in range(len(sentence), 0, -1):
             tag = list_of_possible_tags[index]
             tags = [tag] + tags
             index = backPointers[i][index]
-        return self._zipTagsWithSentence(sentence,tags)
+        return tags
 
-    def __findMaxProbabilityFromLastRow(self, probability_matrix_row, word, possible_prev_tags, cur_tag) -> [float,
-                                                                                                             str]:
+    def __findMaxProbabilityFromLastRow(self, probability_matrix_row, word, possible_prev_tags, cur_tag) \
+            -> [float, str]:
 
         bestPrevTagIndex = 0
         bestProbability = 0
@@ -148,11 +143,11 @@ class HMMBigramTagger:
         totalTag = self.__tags_count[tag] + len(self.__word_to_tag_count) * self.__delta
         return appearance / totalTag
 
-    def setPorbMatrix(self, Sk, sentence):
+    def getPorbMatrix(self, Sk, sentence):
         sentence_length = len(sentence)
         number_of_tags = len(Sk[1])
         probabilityMatrix = np.zeros((sentence_length, number_of_tags))
-        backPointersIndexes = np.zeros((sentence_length, number_of_tags),dtype=np.int)
+        backPointersIndexes = np.zeros((sentence_length, number_of_tags), dtype=np.int)
 
         # set probability of Start to 1 in all rows
         probabilityMatrix[0] = 1
@@ -160,7 +155,7 @@ class HMMBigramTagger:
         for i in range(1, sentence_length):
             word = sentence[i][0]
             probability_matrix_row = probabilityMatrix[i - 1]
-            possible_prev_tags = Sk[i - 1]
+            possible_prev_tags = Sk[min(i - 1, 1)]
             for j in range(number_of_tags):
                 probabilityMatrix[i, j], backPointersIndexes[i, j] = \
                     self.__findMaxProbabilityFromLastRow(probability_matrix_row, word, possible_prev_tags, Sk[i][j])
@@ -173,3 +168,9 @@ class HMMBigramTagger:
 
     def aaa(self):
         pass
+
+    def _zipTagsWithSentence(self, sentence, tags):
+        tagged_sentence = []
+        for i in range(len(sentence)):
+            tagged_sentence.append((sentence[i][0], tags[i]))
+        return tagged_sentence
