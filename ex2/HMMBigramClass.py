@@ -11,6 +11,10 @@ class HMMBigramTagger:
         self.__pseudo_words_to_tag = pseudo_words_to_tag
         self.__delta = delta
 
+        # error variables
+        self.__words_counter = 0
+        self.__correct_words_counter = 0
+
     # </editor-fold>
 
     # <editor-fold desc="Train">
@@ -55,19 +59,28 @@ class HMMBigramTagger:
 
     # </editor-fold>
 
-    # <editor-fold desc="Test">
 
+    # <editor-fold desc="Test">
     def test(self, test_sentences) -> float:
-        self.__tag(sentence=test_sentences[0])
-        return 0
+        for cur_sentence in test_sentences:
+            tagged_sentence = self.__tag(sentence=cur_sentence)
+            self._computeError(tagged_sentence, cur_sentence)
+        return self.__correct_words_counter/self.__words_counter
+
+    def _computeError(self, tagged_sentence, correct_sentence):
+        self.__words_counter += len(tagged_sentence)
+        for i in range(len(tagged_sentence)):
+            if tagged_sentence == correct_sentence:
+                self.__correct_words_counter += 1
+
+    def _zipTagsWithSentence(self,sentence,tags):
+        tagged_sentence = []
+        for i in range(len(sentence)):
+            tagged_sentence.append((sentence[i][0],tags[i]))
+        return tagged_sentence
 
     def __tag(self, sentence: list) -> list:
-        # TODO should return the tag of the sentence using back pointers.
-        # Print the sentence
-        for w, t in sentence:
-            print(w, end='\t')
-        print()
-
+        #
         # set Sk (tags)
         n = len(sentence)
         list_of_possible_tags = self.__getPossibleTags()
@@ -92,12 +105,10 @@ class HMMBigramTagger:
             tag = list_of_possible_tags[index]
             tags = [tag] + tags
             index = backPointers[i][index]
-        return list(zip(sentence,tags))
+        return self._zipTagsWithSentence(sentence,tags)
 
     def __findMaxProbabilityFromLastRow(self, probability_matrix_row, word, possible_prev_tags, cur_tag) -> [float,
                                                                                                              str]:
-        # print("word : ",word)
-        # print("cur_tag : ", cur_tag)
 
         bestPrevTagIndex = 0
         bestProbability = 0
@@ -110,10 +121,12 @@ class HMMBigramTagger:
             q = self.__getQProbability(cur_tag, perv_tag)
             pi = probability_matrix_row[j]
             probability = pi * q * emission
+
             # print("probability of them: ", q*emission*pi)
             if probability > bestProbability:
                 bestProbability = probability
                 bestPrevTagIndex = j
+
         return bestProbability, bestPrevTagIndex
 
     def __getQProbability(self, cur_tag, prev_tag):
@@ -123,6 +136,17 @@ class HMMBigramTagger:
             if cur_tag in self.__tag_to_next_tag_count[prev_tag]:
                 return self.__tag_to_next_tag_count[prev_tag][cur_tag] / self.__tags_count[cur_tag]
         return 0
+
+    def __getEmission(self, tag, word) -> float:
+        if word not in self.__word_to_tag_count:
+            # print("didn't saw {word} in training.".format(word=word))
+            return 0
+        if tag not in self.__word_to_tag_count[word]:
+            # print("didn't saw {word} with {tag} in training.".format(word=word,tag=tag))
+            return 0
+        appearance = self.__word_to_tag_count[word][tag] + self.__delta
+        totalTag = self.__tags_count[tag] + len(self.__word_to_tag_count) * self.__delta
+        return appearance / totalTag
 
     def setPorbMatrix(self, Sk, sentence):
         sentence_length = len(sentence)
@@ -144,17 +168,6 @@ class HMMBigramTagger:
 
     def __getPossibleTags(self) -> list:
         return list(self.__tags_count.keys())
-
-    def __getEmission(self, tag, word) -> float:
-        if word not in self.__word_to_tag_count:
-            # print("didn't saw {word} in training.".format(word=word))
-            return 0
-        if tag not in self.__word_to_tag_count[word]:
-            # print("didn't saw {word} with {tag} in training.".format(word=word,tag=tag))
-            return 0
-        appearance = self.__word_to_tag_count[word][tag] + self.__delta
-        totalTag = self.__tags_count[tag] + len(self.__word_to_tag_count) * self.__delta
-        return appearance / totalTag
 
     # </editor-fold>
 
