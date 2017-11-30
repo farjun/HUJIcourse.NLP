@@ -76,16 +76,35 @@ class HMMBigramTagger:
         # add start to the sentence
         sentenceCopy = sentence[:]
         sentenceCopy.insert(0, ("Start", "*"))
-        probMatrix = self.setPorbMatrix(Sk, sentence)
+        probMatrix,backPointers = self.setPorbMatrix(Sk, sentenceCopy)
+
+        bestProbIndex = -1
+        bestProb = 0
+        for i in range(len(probMatrix[-1])):
+            prob = probMatrix[-1][i]
+            if prob > bestProb:
+                bestProb = prob
+                bestProbIndex = i
+
+        tags = []
+        index = bestProbIndex
+        for i in range(len(sentence),0,-1):
+            tag = list_of_possible_tags[index]
+            tags = [tag] + tags
+            index = backPointers[i][index]
+        return list(zip(sentence,tags))
 
     def __findMaxProbabilityFromLastRow(self, probability_matrix_row, word, possible_prev_tags, cur_tag) -> [float,
                                                                                                              str]:
         # print("word : ",word)
         # print("cur_tag : ", cur_tag)
 
-        bestPrevTagIndex = -1
-        bestProbability = -1
+        bestPrevTagIndex = 0
+        bestProbability = 0
         emission = self.__getEmission(cur_tag, word)
+        if not emission:
+            return bestProbability, bestPrevTagIndex
+
         for j in range(len(possible_prev_tags)):
             perv_tag = possible_prev_tags[j]
             q = self.__getQProbability(cur_tag, perv_tag)
@@ -97,19 +116,19 @@ class HMMBigramTagger:
                 bestPrevTagIndex = j
         return bestProbability, bestPrevTagIndex
 
-    def __getQProbability(self, cur_tag, perv_tag):
+    def __getQProbability(self, cur_tag, prev_tag):
         if cur_tag not in self.__tags_count:
             return 0
-        if perv_tag in self.__tag_to_next_tag_count:
-            if cur_tag in self.__tag_to_next_tag_count[perv_tag]:
-                return self.__tag_to_next_tag_count[perv_tag][cur_tag] / self.__tags_count[cur_tag]
+        if prev_tag in self.__tag_to_next_tag_count:
+            if cur_tag in self.__tag_to_next_tag_count[prev_tag]:
+                return self.__tag_to_next_tag_count[prev_tag][cur_tag] / self.__tags_count[cur_tag]
         return 0
 
     def setPorbMatrix(self, Sk, sentence):
         sentence_length = len(sentence)
         number_of_tags = len(Sk[1])
         probabilityMatrix = np.zeros((sentence_length, number_of_tags))
-        backPointersIndexes = np.zeros((sentence_length, number_of_tags))
+        backPointersIndexes = np.zeros((sentence_length, number_of_tags),dtype=np.int)
 
         # set probability of Start to 1 in all rows
         probabilityMatrix[0] = 1
@@ -121,7 +140,6 @@ class HMMBigramTagger:
             for j in range(number_of_tags):
                 probabilityMatrix[i, j], backPointersIndexes[i, j] = \
                     self.__findMaxProbabilityFromLastRow(probability_matrix_row, word, possible_prev_tags, Sk[i][j])
-
         return probabilityMatrix, backPointersIndexes
 
     def __getPossibleTags(self) -> list:
