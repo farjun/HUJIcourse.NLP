@@ -466,9 +466,30 @@ def generatePseudo(train, test):
 
 if __name__ == '__main__':
     train, test = ex2Sol.getTaggedSentences()
+    obj = hmm()
+    obj.train(train)
+
     # retNormal = ex2Sol.HMMbigramTagger(train_sentences=train,test_sentences=test)
     # print("loss - normal :{Normal}".format(Normal=retNormal))
     # retSmooth = ex2Sol.HMMbigramTaggerWithSmooth(train_sentences=train,test_sentences=test)
     # print("loss - Smooth :{Smooth}".format(Smooth = retSmooth))
-    retPseudo = ex2Sol.HMMbigramTaggerWithPseudo(train_sentences=train, test_sentences=test, pseudo_words_to_tag=PSEUDO)
-    print("loss - Smooth :{Smooth}".format(Smooth=retPseudo))
+    # retPseudo = ex2Sol.HMMbigramTaggerWithPseudo(train_sentences=train, test_sentences=test, pseudo_words_to_tag=PSEUDO)
+    # print("loss - pseudo :{pseudo}".format(pseudo=retPseudo))
+    # retPseudoAndSmooth = ex2Sol.HMMbigramTaggerWithPseudoAndSmooth(train_sentences=train, test_sentences=test, pseudo_words_to_tag=PSEUDO)
+    # print("loss - pseudo and smooth :{pseudoAndSmooth}".format(pseudoAndSmooth=retPseudoAndSmooth))
+
+    retNormal = obj.test(test_sentences=test)
+    print("loss - normal :{Normal}".format(Normal=retNormal))
+
+    obj.setDelta(1)
+    retSmooth = obj.test(test_sentences=test)
+    print("loss - Smooth :{Smooth}".format(Smooth = retSmooth))
+
+    obj.setDelta(0)
+    obj.setPseudo(PSEUDO)
+    retPseudo = obj.test(test_sentences=test)
+    print("loss - pseudo :{pseudo}".format(pseudo=retPseudo))
+
+    obj.setDelta(1)
+    retPseudoAndSmooth = obj.test(test_sentences=test)
+    print("loss - pseudo and smooth :{pseudoAndSmooth}".format(pseudoAndSmooth=retPseudoAndSmooth))

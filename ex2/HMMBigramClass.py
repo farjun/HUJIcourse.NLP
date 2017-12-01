@@ -184,6 +184,12 @@ class HMMBigramTagger:
     def getWordToTagCount(self):
         return self.__word_to_tag_count
 
+    def setDelta(self,delta):
+        self.__delta = delta
+
+    def setPseudo(self,pseudo):
+        self.__pseudo_words_to_tag =pseudo
+
 
     # </editor-fold>
     def aaa(self):
