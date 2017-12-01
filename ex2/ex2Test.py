@@ -85,6 +85,7 @@ if __name__ == '__main__':
                 test_sentences[j][i][0] = pseudo_words[test_sentences[j][i][0]]
     print("done")
 
+    print("ori is my bitch... ")
     total, seen, unseen = ex2Sol.HMMbigramTagger(train_sentences, test_sentences)
     print("loss - pseudo:\n"
           "total:{total}  seen:{seen} unseen:{unseen}"
@@ -94,3 +95,6 @@ if __name__ == '__main__':
     print("loss - pseudo and smooth:\n"
           "total:{total}  seen:{seen} unseen:{unseen}"
           .format(total=total, seen=seen, unseen=unseen))
+
+
+

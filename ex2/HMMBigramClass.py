@@ -22,6 +22,7 @@ class HMMBigramTagger:
         self.__bestIndex = 0
         self.__sk = [[]]
 
+
     # </editor-fold>
 
     # <editor-fold desc="Train">
@@ -72,19 +73,18 @@ class HMMBigramTagger:
 
     # <editor-fold desc="Test">
     def test(self, test_sentences) -> [float, float, float]:
-        # import time
-        # s = time.time()
-        print(len(test_sentences))
-        # i = 0
+        confusion_matrix = np.zeros((len(self.__sk[1]),len(self.__sk[1])))
+
         for cur_sentence in test_sentences:
-            # i += 1
-            # if i % 100 == 0:
-            #     print("Test Iter: {i}".format(i=i))
             sentence = cur_sentence[:, 0]  # remove tags
             correct_tags = cur_sentence[:, 1]  # remove words
             tagged_sentence = self.tag(sentence=sentence)
             self.computeError(tagged_sentence, correct_tags, sentence=sentence)
-        # print("Time took to tag: {time}".format(time=time.time() - s))
+            # print("correct tags : ", correct_tags,"\n\n")
+            # print("our tags : ",tagged_sentence)
+            #  update confusion matrix
+            self.updateConfusoinMatrix(confusion_matrix,tagged_sentence,correct_tags)
+
         return (self.__wrong_words_counter / self.__words_counter), \
                (self.__wrong_words_seen / self.__seen_words), \
                (self.__wrong_words_unseen / self.__unseen_words)
@@ -93,7 +93,7 @@ class HMMBigramTagger:
         self.__words_counter += len(out_tags)
         self.__wrong_words_counter += np.sum(out_tags != correct_tags)
         seen = np.array([w in self.__word_to_tag_count for w in sentence],dtype=np.bool)
-        unseen = -seen
+        unseen = ~seen
 
         self.__seen_words += np.sum(seen)
         self.__wrong_words_seen += np.sum(out_tags[seen] != correct_tags[seen])
@@ -107,14 +107,9 @@ class HMMBigramTagger:
 
         # add start to the sentence
         probMatrix, backPointers = self.getProbMatrix(Sk, np.insert(sentence, 0, "START"))
-        bestProbIndex = -1
-        bestProb = 0
 
-        for i in range(len(probMatrix[-1])):
-            prob = probMatrix[-1][i]
-            if prob > bestProb:
-                bestProb = prob
-                bestProbIndex = i
+        bestProbIndex = np.argmax(probMatrix[-1],axis=0)
+
         return self.constructTags(backPointers, bestProbIndex, list_of_possible_tags, sentence)
 
     def constructTags(self, backPointers, bestProbIndex, list_of_possible_tags, sentence) -> np.ndarray:
@@ -140,7 +135,6 @@ class HMMBigramTagger:
         for i in range(1, sentence_length):
             word = sentence[i]
             probability_matrix_row = probabilityMatrix[i - 1]
-            # print(np.sum(probability_matrix_row))
 
             for j in range(number_of_tags):
                 probabilityMatrix[i, j], backPointersIndexes[i, j] = \
@@ -150,23 +144,26 @@ class HMMBigramTagger:
 
     def findMaxProbabilityFromLastRow(self, probability_row, word, prev_tags, cur_tag) -> [float, str]:
         emission = self.getEmission(cur_tag, word)
-        if emission == 0:
+
+        if emission == 0:  # unknown word
             bestProbability = 0
             if not len(prev_tags) == 1:
                 bestPrevTagIndex = self.__bestIndex
             else:
                 bestPrevTagIndex = 0
 
-        elif not len(prev_tags) == 1:
+        elif not len(prev_tags) == 1:  # known word and not first word
             temp = np.array([self.getQProbability(cur_tag, prev_tag) for prev_tag in prev_tags],
                             dtype=np.float64)
             temp = emission * temp * probability_row
+            # print("for words: ", word)
+            # print("prob array: ",temp)
             bestProbability = np.max(temp)
-            if bestProbability:
+            if bestProbability != 0:
                 bestPrevTagIndex = (np.nonzero(temp == bestProbability))[0][0]
             else:
                 bestPrevTagIndex = self.__bestIndex
-        else:
+        else:  # first word
             perv_tag = prev_tags[0]
             q = self.getQProbability(cur_tag, perv_tag)
             pi = probability_row[0]
@@ -198,6 +195,13 @@ class HMMBigramTagger:
 
     def setDelta(self, delta):
         self.__delta = delta
+
+    def updateConfusoinMatrix(self,confusion_matrix,algorithem_tags,correct_tags):
+        tags = self.__sk[1]
+        for i in range(len(algorithem_tags)):
+            algorithem_tag = algorithem_tags[i]
+            correct_tag = correct_tags[i]
+            confusion_matrix[tags.index(correct_tags)][tags.index(algorithem_tags)] +=1
 
 
     def aaa(self):
