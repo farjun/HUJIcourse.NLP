@@ -1,6 +1,7 @@
 import numpy as np
 import operator
 
+
 class HMMBigramTagger:
     # <editor-fold desc="Init">
 
@@ -144,23 +145,22 @@ class HMMBigramTagger:
             return bestProbability, bestPrevTagIndex
 
         if not len(possible_prev_tags) == 1:
-            temp = np.array(list(map(lambda prev_tag: self.__getQProbability(cur_tag, prev_tag), possible_prev_tags)),
+            temp = np.array([self.__getQProbability(cur_tag, prev_tag) for prev_tag in possible_prev_tags],
                             dtype=np.float64)
             temp = emission * temp * probability_matrix_row
             bestProbability = np.max(temp)
             bestPrevTagIndex = (np.nonzero(temp == bestProbability))[0][0]
-            return bestProbability, bestPrevTagIndex
+        else:
+            for j in range(len(possible_prev_tags)):
+                perv_tag = possible_prev_tags[j]
+                q = self.__getQProbability(cur_tag, perv_tag)
+                pi = probability_matrix_row[j]
+                probability = pi * q * emission
 
-        for j in range(len(possible_prev_tags)):
-            perv_tag = possible_prev_tags[j]
-            q = self.__getQProbability(cur_tag, perv_tag)
-            pi = probability_matrix_row[j]
-            probability = pi * q * emission
-
-            # print("probability of them: ", q*emission*pi)
-            if probability > bestProbability:
-                bestProbability = probability
-                bestPrevTagIndex = j
+                # print("probability of them: ", q*emission*pi)
+                if probability > bestProbability:
+                    bestProbability = probability
+                    bestPrevTagIndex = j
 
         if bestProbability == 0 and self.__most_common_tag in possible_prev_tags:
             bestPrevTagIndex = possible_prev_tags.index(self.__most_common_tag)
