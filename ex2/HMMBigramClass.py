@@ -16,6 +16,7 @@ class HMMBigramTagger:
         self.__correct_words_counter = 0
         self.__most_common_tag = "."
 
+
     # </editor-fold>
 
     # <editor-fold desc="Train">
@@ -113,6 +114,26 @@ class HMMBigramTagger:
             index = backPointers[i][index]
         return np.array(tags, dtype=np.str)
 
+    def getProbMatrix(self, Sk, sentence) -> [np.ndarray, np.ndarray]:
+        sentence_length = len(sentence)
+        number_of_tags = len(Sk[1])
+        probabilityMatrix = np.zeros((sentence_length, number_of_tags), dtype=np.float64)
+        backPointersIndexes = np.zeros((sentence_length, number_of_tags), dtype=np.int)
+
+        # set probability of Start to 1 in all rows
+        probabilityMatrix[0] = 1
+        backPointersIndexes[0] = 0
+        possible_prev_tags = Sk[0]
+        tags = Sk[1]
+        for i in range(1, sentence_length):
+            word = sentence[i]
+            probability_matrix_row = probabilityMatrix[i - 1]
+            for j in range(number_of_tags):
+                probabilityMatrix[i, j], backPointersIndexes[i, j] = \
+                    self.__findMaxProbabilityFromLastRow(probability_matrix_row, word, possible_prev_tags, tags[j])
+            possible_prev_tags = tags
+        return probabilityMatrix, backPointersIndexes
+
     def __findMaxProbabilityFromLastRow(self, probability_matrix_row, word, possible_prev_tags, cur_tag) \
             -> [float, str]:
 
@@ -141,19 +162,10 @@ class HMMBigramTagger:
                 bestProbability = probability
                 bestPrevTagIndex = j
 
-            if bestProbability == 0 and self.__most_common_tag in possible_prev_tags:
-                bestPrevTagIndex = possible_prev_tags.index(self.__most_common_tag)
-                bestProbability = 1 # todo maybe we need this to make sure this tag gets selected?
+        if bestProbability == 0 and self.__most_common_tag in possible_prev_tags:
+            bestPrevTagIndex = possible_prev_tags.index(self.__most_common_tag)
 
         return bestProbability, bestPrevTagIndex
-
-    def __getQProbability(self, cur_tag, prev_tag):
-        if cur_tag not in self.__tags_count:
-            return 0
-        if prev_tag in self.__tag_to_next_tag_count:
-            if cur_tag in self.__tag_to_next_tag_count[prev_tag]:
-                return self.__tag_to_next_tag_count[prev_tag][cur_tag] / self.__tags_count[cur_tag]
-        return 0
 
     def __getEmission(self, tag, word) -> float:
         if word not in self.__word_to_tag_count:
@@ -166,25 +178,13 @@ class HMMBigramTagger:
         totalTag = self.__tags_count[tag] + len(self.__word_to_tag_count) * self.__delta
         return appearance / totalTag
 
-    def getProbMatrix(self, Sk, sentence) -> [np.ndarray, np.ndarray]:
-        sentence_length = len(sentence)
-        number_of_tags = len(Sk[1])
-        probabilityMatrix = np.zeros((sentence_length, number_of_tags), dtype=np.float64)
-        backPointersIndexes = np.zeros((sentence_length, number_of_tags), dtype=np.int)
-
-        # set probability of Start to 1 in all rows
-        probabilityMatrix[0] = 1
-        backPointersIndexes[0] = 0
-        possible_prev_tags = Sk[0]
-        tags = Sk[1]
-        for i in range(1, sentence_length):
-            word = sentence[i]
-            probability_matrix_row = probabilityMatrix[i - 1]
-            for j in range(number_of_tags):
-                probabilityMatrix[i, j], backPointersIndexes[i, j] = \
-                    self.__findMaxProbabilityFromLastRow(probability_matrix_row, word, possible_prev_tags, tags[j])
-            possible_prev_tags = tags
-        return probabilityMatrix, backPointersIndexes
+    def __getQProbability(self, cur_tag, prev_tag):
+        if cur_tag not in self.__tags_count:
+            return 0
+        if prev_tag in self.__tag_to_next_tag_count:
+            if cur_tag in self.__tag_to_next_tag_count[prev_tag]:
+                return self.__tag_to_next_tag_count[prev_tag][cur_tag] / self.__tags_count[cur_tag]
+        return 0
 
     # </editor-fold>
 
