@@ -69,9 +69,9 @@ class HMMBigramTagger:
             i += 1
             if i % 100 == 0:
                 print("Test Iter: {i}".format(i=i))
-            sentence = list(map(lambda var: var[0], cur_sentence))  # remove tags
+            sentence = cur_sentence[:, 0]  # remove tags
+            correct_tags = cur_sentence[:, 1]  # remove words
             tagged_sentence = self.__tag(sentence=sentence)
-            correct_tags = list(map(lambda var: var[1], cur_sentence))  # remove words
             self._computeError(tagged_sentence, correct_tags)
         return self.__correct_words_counter / self.__words_counter
 
@@ -81,18 +81,17 @@ class HMMBigramTagger:
     def __getPossibleTags(self) -> list:
         return list(self.__tags_count.keys())
 
-    def _computeError(self, out_tags, correct_tags):
+    def _computeError(self, out_tags: np.ndarray, correct_tags: np.ndarray):
         self.__words_counter += len(out_tags)
-        self.__correct_words_counter += \
-            np.sum(np.array(out_tags, dtype=np.str) == np.array(correct_tags, dtype=np.str))
+        self.__correct_words_counter += np.sum(out_tags == correct_tags)
 
-    def __tag(self, sentence: list) -> list:
+    def __tag(self, sentence: np.ndarray) -> np.ndarray:
         # set Sk (tags)
         Sk = self.__sk
         list_of_possible_tags = Sk[1]
 
         # add start to the sentence
-        probMatrix, backPointers = self.getProbMatrix(Sk, [("Start", "*")] + sentence)
+        probMatrix, backPointers = self.getProbMatrix(Sk, np.insert(sentence, 0, "START"))
         bestProbIndex = -1
         bestProb = 0
         for i in range(len(probMatrix[-1])):
@@ -103,14 +102,14 @@ class HMMBigramTagger:
         tags = self.__constructTags(backPointers, bestProbIndex, list_of_possible_tags, sentence)
         return tags
 
-    def __constructTags(self, backPointers, bestProbIndex, list_of_possible_tags, sentence):
+    def __constructTags(self, backPointers, bestProbIndex, list_of_possible_tags, sentence) -> np.ndarray:
         tags = []
         index = bestProbIndex
         for i in range(len(sentence), 0, -1):
             tag = list_of_possible_tags[index]
             tags = [tag] + tags
             index = backPointers[i][index]
-        return tags
+        return np.array(tags, dtype=np.str)
 
     def __findMaxProbabilityFromLastRow(self, probability_matrix_row, word, possible_prev_tags, cur_tag) \
             -> [float, str]:
@@ -122,13 +121,12 @@ class HMMBigramTagger:
             return bestProbability, bestPrevTagIndex
 
         if not len(possible_prev_tags) == 1:
-            temp = np.array(list(map(lambda prev_tag : self.__getQProbability(cur_tag, prev_tag),possible_prev_tags)),dtype=np.float64)
-            temp = emission*temp*probability_matrix_row
+            temp = np.array(list(map(lambda prev_tag: self.__getQProbability(cur_tag, prev_tag), possible_prev_tags)),
+                            dtype=np.float64)
+            temp = emission * temp * probability_matrix_row
             bestProbability = np.max(temp)
             bestPrevTagIndex = (np.nonzero(temp == bestProbability))[0][0]
-            return bestProbability,bestPrevTagIndex
-
-
+            return bestProbability, bestPrevTagIndex
 
         for j in range(len(possible_prev_tags)):
             perv_tag = possible_prev_tags[j]
