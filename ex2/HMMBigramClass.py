@@ -5,7 +5,7 @@ import operator
 class HMMBigramTagger:
     # <editor-fold desc="Init">
 
-    def __init__(self, pseudo_words_to_tag=None, delta=0):
+    def __init__(self, delta=0):
         self.__wrong_words_unseen = 0
         self.__unseen_words = 0
         self.__wrong_words_seen = 0
@@ -13,7 +13,6 @@ class HMMBigramTagger:
         self.__word_to_tag_count = {}
         self.__tag_to_next_tag_count = {}
         self.__tags_count = {}
-        self.__pseudo_words_to_tag = pseudo_words_to_tag if pseudo_words_to_tag else {}
         self.__delta = delta
 
         # error variables
@@ -177,8 +176,6 @@ class HMMBigramTagger:
         return bestProbability, bestPrevTagIndex
 
     def getEmission(self, tag, word) -> float:
-        if word in self.__pseudo_words_to_tag:
-            return int(tag in self.__pseudo_words_to_tag[word])
         if word not in self.__word_to_tag_count:
             # print("didn't saw {word} in training.".format(word=word))
             return 0
@@ -202,8 +199,6 @@ class HMMBigramTagger:
     def setDelta(self, delta):
         self.__delta = delta
 
-    def setPseudo(self, pseudo):
-        self.__pseudo_words_to_tag = pseudo
 
     def aaa(self):
 

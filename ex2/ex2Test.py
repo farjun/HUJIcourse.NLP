@@ -1,493 +1,88 @@
 import ex2.ex2Sol as ex2Sol
 from ex2.HMMBigramClass import HMMBigramTagger as hmm
 
-PSEUDO = {'jinx': 'NN', 'holystones': 'NNS', 'Longfellow': 'NP', 'Ferraro': 'NP', 'exhaustingly': 'RB', 'snobs': 'NNS',
-          "Romeo's": 'NP$', 'unventilated': 'JJ', 'six-month': 'JJ', 'ticking': 'VBG', 'mayorship': 'NN',
-          'Reverently': 'RB', 'bachelor-type': 'JJ', 'vestments': 'NNS', 'Allegheny': 'NP-TL', 'floodlit': 'VBN',
-          "strangers'": 'NNS$', 'Baslot': 'NP', 'Puttana': 'FW-NN', 'guinea': 'NN', 'well-bred': 'JJ', "Blatz's": 'NP$',
-          'Sometime': 'RB', 'indecipherable': 'JJ', 'Jour': 'FW-NN-TL', 'Engisch': 'NP', 'fifty-third': 'OD',
-          'waggled': 'VBD', 'peppermints': 'NNS', 'Ryusenji': 'NP', 'scimitar': 'NN', 'plowshares': 'NNS',
-          "J'ai": 'FW-PPSS+HV', "A-Z's": 'NP$', 'Ubermenschen': 'FW-NNS', 'absolution': 'NN', 'shoelaces': 'NNS',
-          'ceremonially': 'RB', "Johnnie's": 'NP$', 'undying': 'JJ', 'geldings': 'NNS', 'odds-on': 'JJ',
-          'somersaulting': 'VBG', 'Jeroboam': 'NP', "rain's": 'NN+HVZ', 'headstones': 'NNS', 'snapper': 'NN',
-          'sun-suit': 'NN', 'chillier': 'JJR', 'beautifully-tapered': 'JJ', 'Artfully': 'RB', 'grizzly': 'NN',
-          "Eddie's": 'NP$', 'smear': 'NN', "Buzz's": 'NP$', 'moors': 'NNS', 'sweeter': 'JJR', 'Tripoli': 'NP',
-          'unsheathing': 'VBG', 'sheeted': 'VBN', 'merriest': 'JJT', 'Mio': 'FW-PP$-TL', 'parquet': 'NN',
-          "this'll": 'DT+MD', 'knightly': 'JJ', 'jiffy': 'NN', 'Rests': 'VBZ', 'coverlet': 'NN', 'McCafferty': 'NP',
-          'prefectures': 'NNS', 'clinked': 'VBD', 'corrupts': 'VBZ', 'Deslonde': 'NP', 'clincher': 'NN',
-          'Lovejoy': 'NP', 'Dunne': 'NP', "Dandy's": 'NP$', 'singsonged': 'VBD', 'contraptions': 'NNS', 'Howdy': 'UH',
-          'barbarian': 'NN', 'Mauve-colored': 'JJ', "Baseball's": 'NN+BEZ', 'researches': 'NNS', 'Donner': 'NP',
-          'aqua-lung': 'NN', 'fairy-tale': 'NN', 'alibis': 'NNS', 'Richert': 'NP', 'Peony': 'NP', 'fret': 'VB',
-          'orphanage': 'NN', 'baby-sitter': 'NN', 'PWA': 'NP-TL', "bee's": 'NN$', 'salivate': 'VB', 'whimpering': 'VBG',
-          'incessantly': 'RB', 'eatables': 'NNS', 'uncoiling': 'VBG', 're-explore': 'VB', 'Gord': 'NP-TL',
-          'relict': 'NN', "Pietro's": 'NP+BEZ', 'offal': 'NN', 'Unimpressed': 'JJ', 'larder': 'NN', 'Tolley': 'NP',
-          'Baby-dear': 'NP', 'mater': 'FW-NN', 'derriere': 'NN', 'Whittaker': 'NP', 'whisperings': 'NNS',
-          'Askington': 'NP', 'oystchers': 'NNS', "Rossilini's": 'NP$', 'drab-haired': 'JJ', 'loincloth': 'NN',
-          'gleefully': 'RB', 'Surviving': 'VBG-TL', "Cromwell's": 'NP$', 'Forked': 'VBN-TL', 'crestfallen': 'JJ',
-          'commoners': 'NNS', 'bathrooms': 'NNS', 'Gresham': 'NP', 'bittersweet': 'JJ', 'Gratt': 'NP',
-          'wallowed': 'VBD', 'theatregoer': 'NN', 'porridge': 'NN', 'scrumptious': 'JJ', 'Subic': 'NP',
-          'grandsons': 'NNS', 'Fascio-Communist': 'NP', 'Hostile': 'JJ', 'pegboards': 'NNS', 'Calf': 'NN-TL',
-          'Yalagaloo': 'UH', 'hemming': 'VBG', 'mares': 'NNS', "'most": 'RB', 'Goose': 'NN-TL', 'uttermost': 'NN',
-          'tube-nosed': 'JJ', 'Elsewhere': 'NN', 'tint': 'NN', 'good-by': 'NN', 'Bon': 'FW-JJ', 'Willows': 'NNS-TL',
-          'derivations': 'NNS', 'after-duty': 'JJ', 'pumpkin': 'NN', 'Hinkle': 'NP', 'Rathbones': 'NPS',
-          'ranted': 'VBD', 'Capistrano': 'NP', 'clobbered': 'VBD', 'dawns': 'VBZ', 'handyman-carpenter': 'NN',
-          'flatter': 'VB', 'chi-chi': 'NN', 'Gunny': 'NP', 'hubba': 'UH', 'Buzz': 'NP', 'Telling': 'VBG',
-          'opalescent': 'JJ', 'quaking': 'VBG', 'alcoholism': 'NN', 'nearsighted': 'JJ', 'oblige': 'NN',
-          'Ranavan': 'NP-TL', 'russe': 'NN', 'Foreigners': 'NNS', "Quint's": 'NP$', 'eyelashes': 'NNS', 'Thaxter': 'NP',
-          'shouders': 'NNS', 'fountain-falls': 'NNS', 'Dingy-looking': 'JJ', 'sandpaper': 'NN', 'sap': 'NN',
-          'symbolizing': 'VBG', 'unbeknownst': 'JJ', 'Miyagi': 'NP-TL', 'rotten': 'JJ', 'Dolan': 'NP',
-          "Whyn't": 'WRB+DOD*', 'Appleby': 'NP', 'heavy-handed': 'JJ', 'luckier': 'JJR', 'Pickfair': 'NP',
-          'snapshots': 'NNS', 'prayerful': 'JJ', 'ladylike': 'JJ', 'hiccups': 'NNS', 'kibbutzim': 'NNS',
-          'Sssshoo': 'UH', 'farmed': 'VBD', 'stumped': 'VBN', 'Hun': 'NP', 'too-expensive': 'JJ', 'Ab63711-r': 'NP',
-          'Swan': 'NN-TL', 'politicking': 'NN', 'bothersome': 'JJ', 'tamale': 'NN', 'biwa': 'FW-NN', "Ernie's": 'NP$',
-          'dizziness': 'NN', 'Swallow': 'NN-TL', 'uh': 'UH', 'Nineveh': 'NP', 'insomma': 'UH', 'feelers': 'NNS',
-          'Eph': 'NP', 'Michelson': 'NP', 'Crosbys': 'NPS', 'gull': 'NN', 'intrepid': 'JJ', 'Elysees': 'NP',
-          'pioneers': 'NNS', 'Slug': 'VB', 'Labans': 'NPS', 'pickins': 'NNS', 'ransacking': 'VBG', 'Whipsnade': 'NP',
-          "aunt's": 'NN$', 'frilly': 'JJ', 'Sistine': 'JJ-TL', 'petted': 'VBN', "Fleet's": 'NN$-TL', 'Perle': 'NP',
-          'Gott': 'FW-NP', 'Fatso': 'NP', 'Torino': 'NP', "Summer's": 'NN+HVZ', 'flowerpot': 'NN',
-          'two-by-fours': 'NNS', 'Agoeng': 'NP', 'Shivering': 'VBG', "Idiot's": 'NN$', 'housebreakers': 'NNS',
-          'ultra-modern': 'JJ', 'Ahah': 'UH', 'time-cast': 'JJ', 'kimono': 'NN', 'Calloused': 'VBN', 'Eugenia': 'NP',
-          'unamused': 'JJ', 'Horror': 'NN-TL', 'humiliated': 'VBN', 'rhetoricians': 'NNS', 'mumbling': 'VBG',
-          'By-the-Sea': 'NP', 'vitamin-and-iron': 'NN', 'delicately': 'RB', 'Absolution': 'NN', 'bumped': 'VBD',
-          'Astaires': 'NPS', 'shag': 'NN', 'Catatonia': 'NP', 'newly-plowed': 'JJ', 'extremis': 'FW-NNS', 'duds': 'NNS',
-          'play-off': 'NN', 'scalded': 'VBN', 'Viyella': 'NP', 'movie-to-be': 'NN', 'Unusual': 'JJ', 'feasting': 'VBG',
-          'Doors': 'NNS', 'yanking': 'VBG', 'bumps': 'NNS', 'Sonny': 'NP', 'Gorshek': 'NP', 'astronaut': 'NN',
-          'Umm': 'UH', 'chemistries': 'NNS', 'Velasquez': 'NP', 'mural': 'NN', 'Lust': 'NN-TL', 'scald': 'VB',
-          'wand': 'NN', 'Houdini': 'NP', 'spangle': 'NN', 'william': 'NN', "Pompeii's": 'NP$', 'cigars': 'NNS',
-          'atonally': 'RB', 'plopped': 'VBD', 'malign': 'JJ', 'sun-warmed': 'JJ', 'flop': 'NN', 'NRA': 'NP-TL',
-          'Bolshevistic': 'JJ', "Lalauries'": 'NPS$', 'quarts': 'NNS', 'Thrifty': 'JJ', 'perfectionists': 'NNS',
-          'multi-colored': 'JJ', 'forever-Cathy': 'NP', 'nigs': 'NNS', 'all-lesbian': 'JJ', 'chockfull': 'JJ',
-          'low-priced': 'JJ', 'alligator': 'NN', "f'r": 'IN', 'neatest': 'JJT', 'neatness': 'NN', 'vendor': 'NN',
-          'Portia': 'NP', 'foal': 'NN', 'black-and-yellow': 'JJ', 'Kiz': 'NP', 'nine-to-five': 'JJ', 'snick': 'NN',
-          "gran'dad": 'NP', 'small-car': 'NN', 'drowsing': 'VBG', 'Pile': 'NN-TL', 'Flotilla': 'NP', 'modifiers': 'NNS',
-          'Doug': 'NP', 'mockery': 'NN', 'Khmer': 'NP', "Hetty's": 'NP$', 'Willis': 'NP', 'Veneto': 'NP-TL',
-          'Classified': 'VBN', 'gratingly': 'RB', 'crackles': 'VBZ', "Allstates'": 'NPS$', 'effloresce': 'VB',
-          'Height': 'NN', "bar'l": 'NN', 'Felicity': 'NP', 'Webber': 'NP', 'Tanin': 'FW-NNS', 'instigating': 'VBG',
-          'closeted': 'VBN', 'sidesteps': 'VBZ', 'workbench': 'NN', 'whitewashed': 'VBN', 'Chadroe': 'NP',
-          'offbeat': 'JJ', 'Stake': 'VB', 'Torah': 'NP', 'mutineer': 'NN', 'portant': 'FW-VB', 'grata': 'FW-JJ',
-          'unpaintable': 'JJ', 'envenomed': 'VBN', 'polio': 'NN', 'dark-gray': 'JJ', 'deigned': 'VBD',
-          'Prefecture': 'NN-TL', 'manure-scented': 'JJ', 'gumming': 'VBG', 'manic-depressive': 'JJ',
-          'John-and-Linda': 'NPS', 'gibes': 'NNS', 'Harro': 'UH', 'raindrops': 'NNS', "Bobbie's": 'NP$', 'hotbed': 'NN',
-          'martingale': 'NN', 'gathers': 'VBZ', "Jenny's": 'NP$', 'visrhanik': 'NN-NC', 'porches': 'NNS',
-          'parent-teacher': 'NN', 'Viola': 'NP', 'plaid': 'NN', 'Romances': 'NNS-HL', 'Britches': 'NNS-TL',
-          'daydreamed': 'VBD', "Askington's": 'NP$', 'pinch-hit': 'VB', 'pyre': 'NN', 'desecration': 'NN',
-          'nuzzled': 'VBD', 'loon': 'NN', 'squirted': 'VBD', 'Colts': 'NNS-TL', 'Sole': 'FW-NN-TL',
-          'shipwrecked': 'VBN', 'Sooner': 'RBR', 'flashback': 'NN', 'giblet': 'NN', 'Ready': 'JJ', "rat's": 'NN$',
-          'swiping': 'VBG', 'amphibology': 'NN', 'Hurrays': 'NP', 'upbringing': 'NN', 'pre-Punic': 'JJ',
-          "Tommy's": 'NP$', 'daddy': 'NN', 'den': 'NN', 'finely-spun': 'JJ', 'fishpond': 'NN', 'noncommittally': 'RB',
-          'nary': 'ABN', 'grandly': 'RB', 'Angrily': 'RB', 'Pulova': 'NP', 'screenland': 'NN',
-          'bout-de-souffle': 'FW-NN', 'gags': 'NNS', 'Evadna': 'NP', 'thimble': 'NN', 'cancels': 'VBZ',
-          'flat-footed': 'JJ', 'unnnt': 'UH', 'imploring': 'VBG', 'purposeless': 'JJ', 'creamed': 'VBN', 'Ida': 'NP',
-          'Jennie': 'NP', 'bikinis': 'NNS', 'repetitive': 'JJ', 'wisenheimer': 'NN', "helsq'iyokom": 'FW-NN',
-          'Ainu': 'NP', 'no-good': 'JJ', 'jour': 'FW-NN', 'Quietly': 'RB', 'worshiped': 'VBN', 'log-house': 'NN',
-          'Virus': 'NN', 'encylopedia': 'NN', 'sunburn': 'NN', 'Rhyme': 'VB', "goat's": 'NN$', 'shooing': 'VBG',
-          'Perelman': 'NP', 'Capricorn': 'NP-TL', 'Dying': 'VBG-TL', 'somersaults': 'NNS', 'bellicosity': 'NN',
-          'contralto': 'NN', 'woolly-minded': 'JJ', 'intoxicated': 'VBN', 'bannnnnng': 'UH', 'bathtubs': 'NNS',
-          'Kanto': 'NP', 'Homes': 'NNS', "Captain's": 'NN$-TL', 'chassis': 'NN', 'Expressionism': 'NN-TL',
-          'rakishly': 'RB', "roulette's": 'NN+BEZ', 'eludes': 'VBZ', 'Toodle': 'NP', 'daubed': 'VBD', 'Gladdy': 'NP',
-          "t's": 'NN', 'stung': 'VBN', 'Ricco': 'NP', 'commissary': 'NN', 'Elemental': 'JJ', 'bested': 'VBN',
-          'Regretfully': 'RB', "Francie's": 'NP$', 'Theresa': 'NP', 'notoriety': 'NN', 'Papanicolaou': 'NP',
-          'Woods': 'NNS-TL', 'Dazed': 'VBN', 'lower-cut': 'JJR', 'unsee': 'VB', "Spumoni's": 'NP$', 'Carrie': 'NP',
-          'raisin': 'NN', 'six-thirty': 'CD', 'wild-eyed': 'JJ', 'anxieties': 'NNS', 'squirt': 'NN', 'clattery': 'JJ',
-          'patriarchy': 'NN', 'hunched-up': 'JJ', 'gauze': 'NN', 'Pagan': 'NN-TL', 'Content': 'JJ', 'traitor': 'NN',
-          'floorshow': 'NN', 'well-organized': 'JJ', 'coursing': 'VBG', "ever'body": 'PN', 'rivals': 'NNS',
-          'stickman': 'NN', 'Toujours': 'FW-RB', 'Cafritz': 'NP', 'Compassionately': 'RB', 'co-extinction': 'NN',
-          'stubble': 'NN', 'yelping': 'VBG', 'heatedly': 'RB', 'ginkgo': 'NN', 'peacocks': 'NNS', 'Neitzbohr': 'NP',
-          'yori': 'FW-NNS', 'intraepithelial': 'JJ', "Morris'": 'NP$', 'vignette': 'NN', "Horne's": 'NP$',
-          'buffeted': 'VBN', 'Feathertop': 'NP', 'Ozon': 'NP', "Emma's": 'NP$', 'over-pretended': 'JJ',
-          "wieners'": 'NNS$', 'tracings': 'NNS', 'harshness': 'NN', 'Canoe': 'NN-TL', 'detained': 'VBD',
-          'Soothing': 'VBG', 'poling': 'VBG', 'hundred-yen': 'JJ', 'beat-up': 'JJ', "d'Eiffel": 'FW-IN+NP-TL',
-          'drawing-rooms': 'NNS', 'deception': 'NN', "Maggie's": 'NP$', 'absurdly': 'RB', 'nylon': 'NN',
-          'overhearing': 'VBG', 'shackled': 'VBN', 'footstool': 'NN', 'journalese': 'NN', 'Bini': 'NP', 'fig': 'NN',
-          'Chieti': 'NP', 'sappy': 'JJ', 'midwife': 'NN', 'bun': 'NN', 'ham-radio': 'NN', 'Ceecee': 'NP',
-          'Shades': 'NNS-TL', 'Arcilla': 'NP', 'crackling': 'NN', 'sickly-tolerant': 'JJ', 'Becoming': 'VBG',
-          'womanly': 'JJ', 'wearied': 'VBD', 'Poldowski': 'NP', 'Kansas-Nebraska': 'NP-TL', 'equivocal': 'JJ',
-          'Instantaneously': 'RB', 'country-squirehood': 'NN', 'long-hair': 'NN', 'cod': 'NN', 'pinto': 'NN',
-          'Iijima': 'NP', 'Krishna': 'NP', 'convulsed': 'VBD', 'Beard': 'NN-TL', 'horselike': 'JJ', 'Upstairs': 'RB',
-          'over-large': 'JJ', 'mockingly': 'RB', 'unrepentant': 'JJ', 'co-existence': 'NN', 'Leather': 'NN-TL',
-          'flaxen': 'JJ', 'Grunnfeu': 'NP', 'cortege': 'NN', 'Cady': 'NP', 'Couple': 'NN', 'Relatives': 'NNS',
-          'prayerbooks': 'NNS', 'sacking': 'VBG', 'iron-poor': 'JJ', 'cameo-like': 'JJ', 'chaulmoogra': 'NN',
-          'implausibly': 'RB', 'non-time': 'NN', 'jet-black': 'NN', 'crap': 'NN', 'Ridiculous': 'JJ',
-          'undertaker': 'NN', 'Worst': 'JJT', 'savor': 'NN', 'Nuf': 'AP', 'schoolgirls': 'NNS', 'rankles': 'VBZ',
-          'refracted': 'VBN', 'tallow': 'NN', 'hon': 'NN', 'Dharma': 'NP-TL', "Brace's": 'NP$', 'red-blooded': 'JJ',
-          'gaming': 'VBG', 'effete': 'JJ', 'contentedly': 'RB', 'marshmallows': 'NNS', 'intruding': 'VBG',
-          'wetness': 'NN', 'Wrangler': 'NN-TL', "Doaty's": 'NP$', 'Rosa': 'NP', 'Yuki': 'NP', 'souffle': 'NN',
-          'Devout': 'JJ', 'make-ready': 'NN', "Barco's": 'NP$', 'Furiouser': 'JJR', 'veterinarian': 'NN',
-          'honeymooning': 'VBG', 'blood-soaked': 'JJ', 'paot': 'FW-NN', 'pigeonhole': 'NN', 'sit-down': 'NN',
-          'Camels': 'NNS', 'bake': 'JJ', 'Extending': 'VBG', 'forbore': 'VBD', 'Grimesby': 'NP', 'Bifutek-san': 'NP',
-          'fur-piece': 'NN', 'tool-kit': 'NN', 'Farina': 'NP', 'slaughtering': 'VBG', 'hard-come-by': 'JJ',
-          'Spagna': 'FW-NP-TL', 'cold-bloodedly': 'RB', 'misrelated': 'VBN', 'teddy': 'NN', 'triplets': 'NNS',
-          'keno': 'NN', 'housepaint': 'NN', 'less-dramatic': 'JJ', 'Mattie': 'NP', 'commiserate': 'VB', 'dugout': 'NN',
-          'reunions': 'NNS', 'turtle-neck': 'NN', 'collation': 'NN', 'Letch': 'NP', 'waspishly': 'RB', 'Groggins': 'NP',
-          "squatter's": 'NN$', "clergyman's": 'NN$', 'Cryptic': 'JJ', 'speckled': 'VBN', 'shipshape': 'JJ',
-          'conning': 'VBG', 'Charcoal': 'NN', 'splashy': 'JJ', 'Ye': 'AT-TL', 'tweezed': 'VBN', 'overplayed': 'VBD',
-          'stardom': 'NN', "cane's": 'NN+BEZ', 'befell': 'VBD', 'self-served': 'VBD', 'Edmonia': 'NP', 'Tredding': 'NP',
-          'shills': 'NNS', 'crumble': 'VB', 'Lagoon': 'NP', 'invocation': 'NN', 'Tough': 'JJ', "Someone's": 'PN+BEZ',
-          'Rhinoceros': 'NN', 'Adrien': 'NP', 'Arapacis': 'NP', 'Evenings': 'NNS', "Kirby's": 'NP$', 'valiant': 'JJ',
-          'admiringly': 'RB', 'woulda': 'MD+HV', 'non-God': 'NP', 'slatted': 'JJ', 'vampires': 'NNS', "Thom's": 'NP$',
-          'Oakmont': 'NP', 'Momma': 'NP', 'tangos': 'NNS', 'battle-ax': 'NN', 'fretted': 'VBD', "goodness'": 'NN$',
-          'gasser': 'NN', 'availing': 'VBG', 'hoarseness': 'NN', 'Salamander': 'NN-TL', 'slightly-smoking': 'JJ',
-          'grooved': 'VBN', 'bosoms': 'NNS', 'delineaments': 'NNS', 'weather-royal': 'JJ', 'primping': 'VBG',
-          'tinkers': 'NNS', 'mash': 'NN', 'clawing': 'VBG', 'Prussian': 'JJ', 'Kohi': 'NP', 'birch': 'NN',
-          'sneezing': 'VBG', "Edythe's": 'NP$', 'unpretentious': 'JJ', 'thespians': 'NNS', 'bribe': 'VB',
-          'fast-frozen': 'JJ', 'non-color': 'NN', 'morning-frightened': 'JJ', 'antisocial': 'JJ', 'Handsomest': 'JJT',
-          'pug-nosed': 'JJ', 'Starkey': 'NP', "sor'l": 'JJ', 'ascetic': 'NN', 'squelched': 'VBN', 'Miro': 'NP',
-          'armload': 'NN', 'whitehaired': 'JJ', "l's": 'NN', 'Blatz': 'NP', 'Yokosuka': 'NP', "egotist's": 'NN$',
-          'yaws': 'NNS', 'drib-drool': 'NN', "Viola's": 'NP$', 'courtyards': 'NNS', 'amulet': 'NN', 'Mesta': 'NP',
-          'Caneli': 'NP', 'redheads': 'NNS', 'noblesse': 'NN', 'doped': 'VBN', 'two-burner': 'JJ', 'boxcars': 'NNS',
-          'unbent': 'VBN', 'whichever-the-hell': 'WDT', 'beseech': 'VB', 'attis': 'FW-NN', 'salamander': 'NN',
-          'licking': 'VBG', 'put-upon': 'JJ', 'Mudugno': 'NP', 'trip-hammer': 'NN', 'interweaving': 'VBG',
-          "Robards'": 'NP$', 'thousand-legged': 'JJ', 'hopscotch': 'NN', 'ale': 'NN', 'calculators': 'NNS',
-          'Necklace': 'NN-TL', 'bathos': 'NN', 'Nadine': 'NP', 'shoestring': 'NN', 'process-server': 'NN',
-          'Broiled': 'VBN', 'unlaced': 'VBD', 'snippy': 'JJ', 'gooshey': 'JJ', 'switchblade': 'NN', 'cutest': 'JJT',
-          'Minute': 'NN-TL', 'bumming': 'NN', 'encyclopedia': 'NN', 'ex-jazz': 'NN', 'tumbles': 'NNS', 'Galahad': 'NP',
-          "Herberet's": 'NP$', 'soutane': 'NN', 'frambesia': 'NN', 'Puzzled': 'VBN', 'thorns': 'NNS',
-          'purple-black': 'JJ', 'Philly': 'NP', 'broach': 'VB', "Deegan's": 'NP$', 'Shops': 'NNS-TL',
-          'Backyard': 'NN-TL', 'M-m-m': 'UH', 'Encouraged': 'VBN', 'Rakestraw': 'NP', 'meteoric': 'JJ',
-          'yellowed': 'VBN', 'Victrola': 'NP', 'Musee': 'FW-NN-TL', 'fainted': 'VBN', 'freight-bums': 'NNS',
-          'fly-boy': 'NN', 'complaisant': 'JJ', 'overcooked': 'VBN', 'yielding-Mediterranian-woman-': 'NN',
-          'Acala': 'NP', 'Cappy': 'NP', 'Hear': 'VB', 'sweathruna': 'FW-NN-NC', 'imperilled': 'VBN',
-          'marbleized': 'VBN', 'Concetta': 'NP', 'misinterpreters': 'NNS', 'Stuart-family': 'JJ', 'tunneled': 'VBD',
-          "Hell's": 'NN$', 'pfffted': 'VBD', 'incongruity': 'NN', 'browny': 'JJ', 'availed': 'VBD', "cook's": 'NN$',
-          'pike': 'NN', 'Cal': 'NP', "what's-his-name": 'NN', 'overloud': 'JJ', 'misconstructions': 'NNS',
-          'teas': 'NNS', 'Sabras': 'NPS', 'pruta': 'FW-NNS', 'Modigliani': 'NP', 'ballplayers': 'NNS', 'obsidian': 'NN',
-          'ladle': 'NN', 'Sarpsis': 'NP', 'knee-length': 'JJ', 'panties': 'NNS', 'udon': 'FW-NN', 'Barrymores': 'NPS',
-          'Scrooge-like': 'JJ', 'crinkles': 'NNS', 'Carpenters': 'NNS', 'omniscient': 'JJ', 'Pyhrric': 'JJ',
-          'mouthful': 'NN', 'Allstates': 'NPS', 'upturned': 'JJ', 'white-columned': 'JJ', 'napping': 'VBG',
-          'coast-to-coast': 'NN', 'MacIsaacs': 'NP-TL', 'villainous': 'JJ', 'miswritten': 'VBN', 'toadies': 'NNS',
-          'vibrating': 'VBG', 'glorying': 'VBG', 'coincidental': 'JJ', 'clonic': 'JJ', "Christians'": 'NPS$-TL',
-          'expunge': 'VB', 'cooked-over': 'JJ', 'Weight': 'NN', 'dens': 'NNS', 'ruining': 'VBG', 'delighting': 'VBG',
-          'gagging': 'VBG', 'cheesecloth': 'NN', 'cabaret': 'NN', 'all-pervading': 'JJ', 'Robards': 'NP',
-          'Tuborg': 'NP', 'octoroon': 'NN', 'tasteless': 'JJ', 'single-foot': 'VB', 'paxam': 'FW-NN',
-          'fieldmice': 'NNS', 'earth-touching': 'JJ', 'waned': 'VBN', 'hysterectomy': 'NN', 'tinning': 'NN',
-          "Maxim's": 'NP$', 'Wrong': 'JJ', 'stubbed': 'VBN', 'Kobayashi': 'NP', 'Fudo': 'NP', 'jollying': 'VBG',
-          'Osric': 'NP', 'Abernathy': 'NP', 'bullhide': 'NN', "gourmet's": 'NN$', 'murdering': 'VBG',
-          'Conduit': 'NN-TL', 'Sabella': 'NP', 'Allons': 'FW-VB', 'nondescriptly': 'RB', 'Province': 'NN-TL',
-          'Travancore': 'NP', 'Embarcadero': 'NP', 'Sierras': 'NPS', 'parisology': 'NN', 'off-road': 'JJ',
-          "Kroger's": 'NP$', 'teething': 'VBG', 'show-offy': 'JJ', 'livers': 'NNS', 'Glendale': 'NP', 'funnier': 'JJR',
-          'Bar-H': 'NP', 'pales': 'NNS', 'pointless': 'JJ', 'So-so': 'RB', 'likee': 'VB', 'honey-in-the-sun': 'JJ',
-          'sallow': 'JJ', 'exasperate': 'VB', "Nadine's": 'NP$', 'bowing': 'VBG', 'hacksaw': 'NN', "Hamrick's": 'NP$',
-          "nurses'": 'NNS$', 'Carrozza': 'FW-NN', "6'": 'NN', 'Sudanese': 'JJ',
-          'nnuolapertar-it-vuh-karti-birifw-': 'NN', 'ramming': 'VBG', 'Thalbergs': 'NPS', 'Comics': 'NNS-TL',
-          'frog': 'NN', 'Truckee': 'NP-TL', 'waltz': 'NN', 'Marquess': 'NN-TL', 'furiouser': 'JJR',
-          'non-writers': 'NNS', 'Tschilwyk': 'NP', 'eighteen-year-old': 'NN', 'Cantor': 'NP', 'wealthiest': 'JJT',
-          'indoctrination': 'NN', "lovers'": 'NNS$', "flautist's": 'NN$', "Riverside's": 'NP$', 'Maurier': 'NP',
-          'thuds': 'NNS', "Tolley's": 'NP$', 'what-nots': 'NNS', 'bilharziasis': 'NN', 'radish': 'NN', 'Feebly': 'RB',
-          'It-wit': 'NN', 'ellipsis': 'NN', 'situ': 'FW-NN', 'alleyways': 'NNS', 'gagwriters': 'NNS', 'leggings': 'NNS',
-          "Shafer's": 'NP$', 'scabrous': 'JJ', 'unalloyed': 'JJ', 'Pompeii': 'NP', 'hedge': 'NN', "d'art": 'FW-IN+NN',
-          'Ah-ah': 'UH', 'next-door': 'JJ', 'wolfishly': 'RB', "Bancroft's": 'NP$', "Kissin'": 'NN-TL',
-          'Mandate': 'NN-TL', 'frog-haiku': 'NN', 'ferreted': 'VBD', 'variegated': 'VBN', 'Fairview': 'NP',
-          'hilltops': 'NNS', 'not-so-pale': 'JJ', 'effeminate': 'JJ', 'Champs': 'FW-NNS-TL', 'bumptious': 'JJ',
-          'Wow': 'UH', 'Mercedes': 'NP', "dryin'": 'VBG', 'yodeling': 'VBG', "Cappy's": 'NP$', 'Filmdom': 'NN-TL',
-          'thin-soled': 'JJ', 'wop': 'VB', 'Rattzhenfuut': 'NP', 'streetlight': 'NN', 'browny-haired': 'JJ',
-          'open-handed': 'JJ', 'coffers': 'NNS', 'hors': 'FW-RB', 'sea-damp': 'NN', 'pickles': 'NNS', "ever'": 'AT',
-          'Grazie': 'NP', 'trustingly': 'RB', 'Monmouth': 'NP', 'tonsil': 'NN', 'Orly': 'NP', 'glee': 'NN',
-          'sweatshirt': 'NN', 'daffodils': 'NNS', 'misquoted': 'VBN', 'lifelong': 'JJ', 'Dolly': 'NP', '141': 'CD',
-          'lath': 'NN', 'Mind': 'VB', 'Bogartian': 'JJ', 'besmirched': 'VBD', 'post-operative': 'JJ', 'flyaway': 'JJ',
-          'goooolick': 'UH', 'sidle': 'VB', 'Showers': 'NP', "d'un": 'FW-IN+AT', 'bellyfull': 'NN', 'Volare': 'NP',
-          'scattering': 'VBG', 'it-wit': 'NN', 'blackjack': 'NN', 'fly-dotted': 'JJ', 'Hajime': 'NP', 'tiredness': 'NN',
-          'instigator': 'NN', 'two-colored': 'JJ', 'outsized': 'JJ', 'fingerings': 'NNS', "Best's": 'NP$',
-          "lad's": 'NN$', 'Tuxapoka': 'NP', "Myra's": 'NP$', 'co-star': 'NN', 'Interlude': 'NN-TL', 'Nuit': 'FW-NN-TL',
-          'Sewickley': 'NP', 'starlet': 'NN', 'liniment': 'NN', 'upshot': 'NN', 'argot': 'NN', 'much-needed': 'JJ',
-          "Lucille's": 'NP+BEZ', "bedroom's": 'NN$', 'ne': 'FW-*', 'AA': 'NP-TL', 'haircuts': 'NNS', 'faim': 'FW-NN',
-          'undressed': 'VBD', 'badgering': 'VBG', 'Oooo': 'UH', 'leftist': 'NN', 'rehearsing': 'VBG',
-          'Faneuil': 'NP-TL', 'rock-carved': 'JJ', 'bookish': 'JJ', 'binge': 'NN', 'Longue': 'NP', 'lulu': 'NN',
-          'remoter': 'JJR', 'splayed': 'VBD', 'Heiser': 'NP', 'Bits': 'NNS', 'indecisively': 'RB', 'Stubblefield': 'NP',
-          "Charlotte's": 'NP$', 'disbelieving': 'VBG', 'amateurishness': 'NN', 'hearse': 'NN', 'parapets': 'NNS',
-          'Hanford': 'NP', 'Nodding': 'VBG', "askin'": 'VBG', 'short-cut': 'JJ', 'fancying': 'VBG', 'Conneaut': 'NP',
-          'Rawlings': 'NP', 'Montmartre': 'NP', "Delphine's": 'NP$', "kind's": 'NN+BEZ', "Cargill's": 'NP$',
-          'Larkspur': 'NN-TL', 'Outsville': 'NP', 'Hair': 'NN', 'palest': 'JJT', 'paleness': 'NN', 'spouting': 'VBG',
-          'mama': 'NN', 'matrimonial': 'JJ', 'boy-name': 'NN', 'Midshipman': 'NN-TL', 'ocarina': 'NN', 'reeked': 'VBD',
-          'hander': 'NN', 'punishing': 'VBG', 'sun-tan': 'NN', 'blazer': 'NN', 'cannonball': 'NN',
-          'SalFininistas': 'NP', 'F-major': 'NP-TL', 'stealer': 'NN', "Cezanne's": 'NP$', 'forepaws': 'NNS',
-          'Stimulating': 'JJ', 'aqueducts': 'NNS', 'soldierly': 'JJ', 'traipsing': 'VBG', 'Skolkau': 'NP-TL',
-          "Quasimodo's": 'NP$', 'pinkish-white': 'JJ', "Pendleton's": 'NP$', 'Wondering': 'VBG', 'careerism': 'NN',
-          'boxcar': 'NN', 'Rosie': 'NP', 'pityingly': 'RB', 'swabbed': 'VBD', 'Bizarre': 'JJ', "nibs'": 'NN$',
-          'Airless': 'JJ', 'gnarled': 'JJ', 'spellbound': 'VBN', 'anesthetic': 'NN', 'sewed': 'VBN', 'Orso': 'FW-NN-TL',
-          'bright-eyed': 'JJ', 'snuck': 'VBD', 'Remy': 'NP', 'Krishnaists': 'NPS', 'freights': 'NNS',
-          'honeymooned': 'VBN', 'tomes': 'NNS', 'Abruptly': 'RB', "Concetta's": 'NP$', 'Quinzaine': 'NP-TL',
-          'undulated': 'VBD', 'alma': 'JJ', 'Panther': 'NN-TL', 'Errol': 'NP', 'Toonker': 'NP', "Mare's": 'NN$-TL',
-          'trucker': 'NN', 'sobbed': 'VBN', 'fierceness': 'NN', 'vandals': 'NNS', 'sacks': 'NNS', 'clanking': 'VBG',
-          "leavin'": 'VBG', 'jest': 'NN', 'Spa': 'NN-TL', 'Tooth-hurty': 'NN', 'charlotte': 'NN', 'insanely': 'RB',
-          'purgatory': 'NN', 'wieners': 'NNS', 'Quintus': 'NP-TL', 'lay-sisters': 'NNS', 'areaways': 'NNS',
-          'sandalwood': 'NN', 'Meinckian': 'JJ', 'thwump': 'NN', "freight's": 'NN$', 'Allah': 'NP', 'Brainards': 'NPS',
-          'Rhine-Main': 'NP', "soon's": 'RB+CS', 'Gansevoort': 'NP', 'amalgamation': 'NN', 'trump': 'VB',
-          'eloped': 'VBD', 'bagpipe': 'NN', 'big-boned': 'JJ', 'prospering': 'VBG', 'Thankful': 'JJ', 'baroness': 'NN',
-          'Cursed': 'VBN', 'IQ': 'NP-TL', 'propositioned': 'VBN', 'dealerships': 'NNS', 'jade-handled': 'JJ',
-          'magnum': 'NN', 'plain-out': 'RB', 'oneasy': 'JJ', 'Siva': 'NP', 'hefty': 'JJ', 'compound-engine': 'NN',
-          'non-nonsense': 'NN', 'panicky': 'JJ', 'wooden-leg': 'NN', 'tea-drinking': 'JJ', "Willis'": 'NP$',
-          'steely': 'JJ', 'Bustard': 'NP', 'maltreat': 'VB', 'prowlers': 'NNS', 'pugh': 'UH', 'coachwork': 'NN',
-          'Hostaria': 'NP', 'Astronaut': 'NN-TL', 'brig': 'NN', 'helpmate': 'NN', 'Lilliputian': 'JJ', 'Hubba': 'UH',
-          'screeches': 'NNS', 'brushlike': 'JJ', 'drowsily': 'RB', 'unruly': 'JJ', 'Serbantian': 'JJ',
-          'wire-haired': 'JJ', 'Ethiopians': 'NPS', 'unfunnily': 'RB', 'gangway': 'NN', 'cavern': 'NN',
-          'gaspingly': 'RB', 'gardeners': 'NNS', 'straight-A': 'JJ', 'Pueri': 'FW-NNS', 'Nabisco': 'NP',
-          'bone-deep': 'JJ', 'schnooks': 'NNS', 'Merry-go-round': 'NN-TL', "Opera's": 'NN$-TL', 'lacerate': 'VB',
-          'indefinity': 'NN', 'scapegoat': 'NN', 'nettled': 'VBN', 'cobblestones': 'NNS', 'quok': 'FW-WDT',
-          'Akita': 'NP', "flower's": 'NN$', 'scions': 'NNS', 'eyeballs': 'NNS', 'enrolling': 'VBG', 'hot-slough': 'JJ',
-          'questioningly': 'RB', 'Pugh': 'UH', 'Jennifer': 'NP', 'spigots': 'NNS', 'mammas': 'NNS', 'afghan': 'NN',
-          'portfolio': 'NN', 'ad-lib': 'NN', 'Hastening': 'VBG', 'muffins': 'NNS', 'aversion': 'NN', 'Belle': 'NP',
-          'non-repetitious': 'JJ', 'Tea': 'NN', 'polka-dotted': 'JJ', 'overture': 'NN', 'jiggling': 'VBG',
-          "Crombie's": 'NP$', 'Gompachi': 'NP', 'arrowheads': 'NNS', "Letch's": 'NP$', 'rajah': 'NN', 'subsist': 'VB',
-          'plumbed': 'VBD', 'Bobbie': 'NP', 'sommelier': 'NN', 'asparagus': 'NN', 'hollowness': 'NN', 'curing': 'VBG',
-          'Suzanne': 'NP', "Miranda's": 'NP$', 'illustrators': 'NNS', 'red-faced': 'JJ', 'frankest': 'JJT',
-          "fielder's": 'NN$', 'Guimet': 'NP-TL', 'doble': 'FW-JJ', 'putains': 'FW-NNS', 'televison-record': 'NN',
-          'heavily-upholstered': 'JJ', 'wildness': 'NN', 'lucy': 'NN', 'bicarbonate': 'NN', 'Stubblefields': 'NPS',
-          'hinting': 'VBG', 'Vivaldi': 'NP', 'frenetic': 'JJ', 'Bobbsey': 'NP-TL', 'tragically': 'RB',
-          'Chalmers': 'NPS', "what're": 'WDT+BER', 'varicolored': 'JJ', 'Delia': 'NP', 'little-town': 'NN',
-          'dampening': 'VBG', 'dragooned': 'VBD', 'big-town': 'NN', 'illustrator': 'NN', 'Alma': 'NP', 'oatmeal': 'NN',
-          'well-worn': 'JJ', 'Fairbrothers': 'NPS', 'Mencius': 'NP', 'Walitzee': 'NP', 'book-lined': 'JJ',
-          'ruefulness': 'NN', 'Suzuki': 'NP', 'limpid': 'JJ', 'unadulterated': 'JJ', 'five-hundred-dollar': 'JJ',
-          "oystchers'll": 'NNS+MD', 'midshipmen': 'NNS', 'parboiled': 'VBD', 'chuck-a-luck': 'NN', 'underwear': 'NN',
-          'lingerie': 'NN', 'middles': 'NNS', 'Liliputian': 'JJ-TL', 'punches': 'NNS', 'Elec': 'NP',
-          'fifteenth-century': 'NN', 'garnet': 'NN', 'Angst': 'FW-NN', 'Sushi': 'FW-NN', 'Alokut': 'NP',
-          'Traits': 'NNS-TL', 'vicissitudes': 'NNS', "Feathertop's": 'NP$', 'bare-armed': 'JJ', 'Magpie': 'NP-TL',
-          'five-days-a-week': 'JJ', 'disquietude': 'NN', 'Bremerton': 'NP', 'Avocado': 'NN-TL', "John'll": 'NP+MD',
-          'Bowes': 'NP', "shores'": 'NNS$', 'acknowledgments': 'NNS', 'playroom': 'NN', 'eyelid': 'NN',
-          'boxed-in': 'JJ', 'Eskimos': 'NPS', 'ravenous': 'JJ', 'snow-fence': 'NN', 'Alloy': 'NN', 'masterly': 'JJ',
-          'lemon-meringue': 'NN', "carpenter's": 'NN$', 'red-haired': 'JJ', "Racin'": 'VBG-TL', 'Jinny': 'NP',
-          'frenziedly': 'RB', 'fascinatingly': 'RB', 'wondrous': 'JJ', 'plaids': 'NNS', 'prickly': 'RB',
-          'Traitor': 'NN', 'Gisele': 'NP', 'pro-ball': 'NN', 'finger-held': 'JJ', 'Zeitgeist': 'FW-NN',
-          'showering': 'VBG', 'Rummaging': 'VBG', 'non-poetry': 'NN', 'Spike-haired': 'JJ', 'helluva': 'JJ',
-          'gypsies': 'NNS', 'arboreal': 'JJ', 'zip': 'VB', 'Zenith': 'NN-TL', 'closets': 'NNS', 'Speedy': 'JJ-TL',
-          "Poitrine's": 'NP$', 'medium-sized': 'JJ', 'Prometheus': 'NP', "Doolittle's": 'NP$', 'Aliah': 'NP',
-          'ocher': 'NN', 'Dinsmore': 'NP', 'Signore': 'NP', 'one-two-three': 'NN', "Victoria's": 'NP$',
-          'easygoing': 'JJ', 'whitens': 'VBZ', 'vise': 'NN', 'unnaturally': 'RB', 'cowbirds': 'NNS',
-          'scatterbrained': 'JJ', "Monmouth's": 'NP$', 'Anthea': 'NP', 'anti-personality': 'JJ', 'nervously': 'RB',
-          "jeweler's": 'NN$', 'encouragingly': 'RB', 'bolo': 'NN', 'Crazy': 'JJ-TL', 'Carraway': 'NP',
-          'tongue-twister': 'NN', 'rotundity': 'NN', 'delimit': 'VB', 'Stopping': 'VBG', "Me'a": 'NP', 'sours': 'VBZ',
-          'frenzied': 'JJ', "Fink's": 'NP$', 'jaggedly': 'RB', 'girl-san': 'NN', 'handspikes': 'NNS', 'A-Z': 'NP-TL',
-          'Aging': 'VBG', "Burnside's": 'NP$', 'Whosoever': 'WPS', 'Lao-tse': 'NP', 'stable-garage': 'NN',
-          'Berche': 'NP', 'lammed': 'VBD', 'Rapping': 'VBG', "Brush-off's": 'NP$', 'toilsome': 'JJ', 'Arc': 'FW-NN-TL',
-          'Deegan': 'NP', "Beige's": 'NP$', 'Edythe': 'NP', 'trestles': 'NNS', 'mem': 'FW-NN', 'whiskered': 'JJ',
-          'dooms': 'NNS', 'Fredrico': 'NP', 'Javert': 'NP', 'Uhhu': 'UH', 'Titus': 'NP', 'Sour': 'JJ-TL',
-          'dislocated': 'VBN', 'schooldays': 'NNS', 'smokes': 'VBZ', 'Worry': 'NN', "Partlow's": 'NP$',
-          'socio-archaeological': 'JJ', 'joss': 'NN', 'furrow': 'NN', 'Reuveni': 'NP', 'spats': 'NNS',
-          'strafe': 'FW-VB', 'rippled': 'VBD', 'vertebrae': 'NNS', 'Mmm': 'UH', 'numerals': 'NNS', 'dial': 'NN',
-          'multicolored': 'JJ', 'beholds': 'VBZ', 'Stern-faced': 'JJ', 'hangers': 'NNS', 'hoof-and-mouth': 'NN',
-          'home-blend': 'NN', 'pajama': 'NN', 'fetes': 'NNS', 'lonelier': 'JJR', "drummer's": 'NN$',
-          'inspirational': 'JJ', 'pinging': 'VBG', 'stormbound': 'JJ', 'Alberto': 'NP', 'Downfall': 'NN-HL',
-          'Poitrine': 'NP', 'rusted': 'VBN', 'prank': 'NN', 'forty-fifth': 'OD', 'forebears': 'NNS', 'Sainted': 'JJ-TL',
-          'tactful': 'JJ', 'chiding': 'VBG', 'dusted': 'VBN', "Fudo's": 'NP$', 'child-cloud': 'NN', 'babbiting': 'VBG',
-          'guzzled': 'VBD', 'tooth-paste': 'NN', 'waitresses': 'NNS', 'Lakes': 'NNS-TL', 'Futotsu': 'NP',
-          'fisted': 'VBD', 'bandages': 'NNS', 'Factory-to-You': 'NN-TL', 'jeunes': 'FW-JJ', '4000-plus': 'CD',
-          'Christmastime': 'NP', 'Forebearing': 'VBG', 'girl-friend': 'NN', 'harshened': 'VBD', 'Olde': 'JJ',
-          "Mathias'": 'NP$', "'ceptin'": 'IN', 'Hardware': 'NN-TL', 'fire-colored': 'JJ', 'dustbin': 'NN', 'Mont': 'NP',
-          'Blackwells': 'NPS', 'matter-of-factness': 'NN', 'assorted': 'VBN', 'fishing-boat': 'NN', 'jade': 'NN',
-          'Barco': 'NP', 'lifeguards': 'NNS', 'footwear': 'NN', 'overexcited': 'VBN', 'Colosseum': 'NP',
-          'nonconformist': 'NN', 'sycophants': 'NNS', 'sun-burned': 'JJ', 'enfant': 'FW-NN', 'Jehovah': 'NP',
-          'Kafka': 'NP', "Francesca's": 'NP$', 'Tillotson': 'NP', 'lodges': 'NNS', 'retaliate': 'VB', 'bubbly': 'JJ',
-          'hubris': 'NN', 'Southland': 'NP-TL', 'Kezziah': 'NP', 'Budweisers': 'NPS', 'Aaawww': 'UH', 'je': 'FW-PPSS',
-          'gourmet': 'NN', 'unidentified': 'JJ', 'Eats': 'NNS-TL', 'uhhu': 'UH', 'unbelievably': 'RB', 'teats': 'NNS',
-          'Petite': 'JJ', 'Herberet': 'NP', 'dewdrops': 'NNS', 'husband-stealer': 'NN', 'Jerez': 'NP',
-          'Alternately': 'RB', 'despoiling': 'VBG', 'disheveled': 'VBN', 'Dillinger': 'NP', 'Bravado': 'NP',
-          'carver': 'NN', "Vivian's": 'NP$', 'tigress': 'NN', 'hairpin': 'NN', "Spencer's": 'NP$', 'voiceless': 'JJ',
-          "catcher's": 'NN$', 'Straightened': 'VBN', 'motorscooters': 'NNS', 'Jean-Pierre': 'NP', 'out-dated': 'JJ',
-          'crossroading': 'VBG', 'headlinese': 'NN', 'Bodhisattva': 'NP', 'distractions': 'NNS', 'Upson': 'NP',
-          'pegboard': 'NN', 'Ticonderoga': 'NP', 'instigation': 'NN', 'shatters': 'VBZ', 'zounds': 'UH', 'Margo': 'NP',
-          "Phil's": 'NP$', 'Snakes': 'NNS', 'unsealed': 'VBN', 'palisades': 'NNS', 'agricolas': 'FW-NNS',
-          'Strippers': 'NNS', 'Ruffians': 'NNS', 'shrub-covered': 'JJ', 'lubricated': 'VBN', 'McKenzie': 'NP',
-          'Shabbat': 'NP', 'restively': 'RB', 'balkiness': 'NN', 'warty': 'JJ', 'double-married': 'JJ',
-          'Francoisette': 'NP', 'Convulsively': 'RB', 'jotting': 'VBG', 'Kleenex': 'NP', 'double-meaning': 'NN',
-          'Brush-off': 'NP', 'Lascivious': 'JJ-TL', 'Astonishingly': 'RB', 'Pils': 'NN-TL', 'shifty': 'JJ',
-          'outcry': 'NN', "Roy's": 'NP$', 'heisted': 'VBD', 'straight-armed': 'VBD', 'five-seventeen': 'CD',
-          'soulfully': 'RB', 'chivying': 'VBG', "She'arim": 'NP', 'juju': 'NN', 'motioning': 'VBG', 'snobbishly': 'RB',
-          'fishmongers': 'NNS', 'underclothes': 'NNS', 'pacifies': 'VBZ', 'theatres': 'NNS', 'slat': 'NN',
-          'sparkled': 'VBD', 'Ishii': 'NP', 'Bathar-on-Walli': 'NP-TL', 'amulets': 'NNS', 'Momoyama': 'NP',
-          'Welch': 'NP', 'Haydon': 'NP', 'ordnance': 'NN', 'dollies': 'NNS', 'wheezes': 'NNS', 'convivial': 'JJ',
-          'boarding-home': 'NN', 'Metronome': 'NN-TL', 'inexpressible': 'JJ', 'chorused': 'VBD', 'moth': 'NN',
-          'carte': 'NN', 'Lalauries': 'NPS', 'Kandinsky': 'NP', 'lapping': 'VBG', 'polishing': 'VBG', 'Ardmore': 'NP',
-          'Brighetti': 'NP', 'Parvenu': 'NP', 'gnomelike': 'JJ', 'Reichstag': 'NP', "dam'": 'JJ', "Bradley's": 'NP$-TL',
-          "Jennie's": 'NP$', "Grandma's": 'NN$-TL', 'Smug': 'JJ', "sparrow's": 'NN$', 'Curly': 'JJ', 'parachute': 'NN',
-          'ologies': 'NNS', 'chapel-like': 'JJ', 'Soba': 'FW-NN', "Pockmanster's": 'NP$', 'rime': 'NN',
-          'Fearless': 'JJ-TL', 'unco-operative': 'JJ', "Tillie's": 'NP$', 'swanlike': 'JJ', 'rapping': 'VBG',
-          'Ferraros': 'NPS', 'nooks': 'NNS', 'Brinsley': 'NP', 'Bugatti': 'NP', 'jeans': 'NNS', 'Sforzt': 'NP',
-          'eight-by-ten': 'CD', 'Komurasaki': 'NP', 'Sameness': 'NN', 'endearments': 'NNS', 'Czarship': 'NN-TL',
-          'defeatism': 'NN', 'bedstraw': 'NN', "grabbin'": 'VBG', 'rollickingly': 'RB', 'Sponge': 'NN-TL',
-          'paraphrase': 'NN', 'scarify': 'VB', 'doweling': 'VBG', 'grand-daughter': 'NN', 'mastiff': 'NN',
-          'Jungian': 'JJ', 'iniquitous': 'JJ', 'Astronomy': 'NN', 'portly': 'JJ', 'commonest': 'JJT', 'Worms': 'NP-TL',
-          'black-balled': 'VBN', 'Bombay': 'NP', 'aquam': 'FW-NN', 'redheaded': 'JJ', 'Freddy': 'NP', 'cremate': 'VB',
-          'Thuggee': 'NP', 'Sashimi': 'NN', 'hoi-polloi': 'FW-NNS', 'pettiness': 'NN', 'wardroom': 'NN',
-          'warmish': 'JJ', 'kazoo': 'NN', "whip's": 'NN$', 'Clouds': 'NNS-TL', 'Eurasian': 'JJ', 'lumbar': 'JJ',
-          'Alicia': 'NP', 'Tasti-Freeze': 'NP', 'newly-scrubbed': 'JJ', 'gray-looking': 'JJ', "folks'": 'NNS$',
-          'non-institutionalized': 'JJ', 'rhinos': 'NNS', 'bibles': 'NNS', 'piously': 'RB', 'soirees': 'NNS',
-          "Carla's": 'NP$', 'philharmonic': 'NN', "rockin'": 'JJ', 'Dilys': 'NP', "Paglieri's": 'NP$-TL',
-          'rectitude': 'NN', 'curettage': 'NN', 'Crumb': 'NP', 'mackerel': 'NN', 'Pack': 'VB', 'Move': 'VB',
-          'gabble': 'NN', 'misunderstanders': 'NNS', 'Gorboduc': 'NP', 'cockroaches': 'NNS', "Wally's": 'NP+BEZ',
-          'heart-stopping': 'JJ', 'canvassing': 'NN', "Flynn's": 'NP$', 'showroom': 'NN', 'shill': 'NN',
-          'frenzy-free': 'JJ', 'provenance': 'NN', 'Cowbird': 'NN', 'tune-belly': 'NN', 'Witter': 'NP',
-          'tidiness': 'NN', 'Invasion': 'NN-TL', 'gorging': 'VBG', 'ere': 'CS', 'Blackwell': 'NP', 'mailbox': 'NN',
-          'heartless': 'JJ', "Thoreau's": 'NP$', 'mistrusted': 'VBD', 'Taylors': 'NPS', "caterer's": 'NN$',
-          'Correspondence': 'NN', 'ungallant': 'JJ', 'Maneret': 'NP-TL', 'swears': 'VBZ', "Welch's": 'NP$',
-          'cahoots': 'NNS', 'Mantegna': 'NP', 'Caucasian': 'JJ', 'regalia': 'NNS', 'catchee': 'VB', 'fifty-fifty': 'JJ',
-          'adjudged': 'VBN', 'non-dramas': 'NNS', 'foals': 'NNS', "Blackwell's": 'NP+BEZ', 'suburbia': 'NN',
-          'caged': 'VBN', "C'un": 'NN-TL', 'grating': 'NN', 'moon-washed': 'JJ', 'constables': 'NNS',
-          'Allstates-Zenith': 'NP', 'sibilant': 'JJ', 'Mlle': 'NN', 'boy-furiendo': 'NN', 'beggary': 'NN',
-          'boucle': 'NN', 'tweedy': 'JJ', 'too-hearty': 'JJ', 'TuHulHulZote': 'NP', 'Thaxters': 'NPS',
-          'mingling': 'VBG', 'rumpus': 'NN', "Basho's": 'NP$', 'Scandal': 'NN-TL', 'asunder': 'RB', 'engagingly': 'RB',
-          'Ganessa': 'NP', 'sherbet-colored': 'JJ', 'daydreaming': 'NN', 'surcease': 'NN', 'willowy': 'JJ',
-          'incarcerated': 'VBN', 'Epiphany': 'NN-TL', 'harelips': 'NNS', 'inherits': 'VBZ', 'Fella': 'NN',
-          'goldsmith': 'NN', 'quavering': 'VBG', "Cotter's": 'NP$', 'belligerence': 'NN', 'mah-jongg': 'NN',
-          'walrus': 'NN', 'cellophane': 'NN', 'Vindication': 'NN', 'chaperon': 'NN', 'purtiest': 'JJT', 'manic': 'JJ',
-          'muddling': 'VBG', 'scissoring': 'NN', 'incredulity': 'NN', 'Websterville': 'NP-TL', 'heavers': 'NNS',
-          'slights': 'NNS', 'Zend-Avesta': 'NP', 'pithy': 'JJ', 'leafed': 'VBD', 'Cal-Neva': 'NP', 'Fortman': 'NP',
-          'marinated': 'VBN', 'olive-flushed': 'JJ', 'Weakness': 'NN', 'Bentley': 'NP', 'hooch': 'NN',
-          "footballer's": 'NN$', 'sonny': 'NN', 'Shuz': 'NP', "nobody'd": 'PN+HVD', 'parkish': 'JJ',
-          'overvaulting': 'JJ', 'Sweating': 'VBG', 'ninety-six': 'CD', 'imperious': 'JJ', 'usurious': 'JJ',
-          "Koussevitzky's": 'NP$', 'stumpy': 'JJ', 'woolgather': 'VB', 'Shoals': 'NNS-TL', 'Kline': 'NP',
-          'middle-Gaelic': 'NP', 'Replies': 'NNS', 'Eddyman': 'NP', 'apparency': 'NN', 'demurred': 'VBD',
-          "slave's": 'NN$', 'sweetpeas': 'NNS', 'curtain-raiser': 'NN', 'Fudomae': 'NP', 'Caligula': 'NP',
-          'Hattie': 'NP', 'recapitulate': 'VB', 'miuchi': 'FW-VB', 'non-publishers': 'NNS', "Kitty's": 'NP+BEZ',
-          'jocose': 'JJ', 'snoop': 'VB', 'nice-looking': 'JJ', 'Fing': 'NP', 'Frail': 'JJ', 'etymological': 'JJ',
-          'beatification': 'NN', 'armadillo': 'NN', 'mops': 'NNS', 'Brest-Silevniov': 'NP-TL', "cowbirds'": 'NNS$',
-          'diddle': 'UH', 'Pull': 'VB', 'flog': 'VB', 'icing': 'NN', 'Highfield': 'NP', 'Dookiyoon': 'NP',
-          'ringlets': 'NNS', 'fireplaces': 'NNS', 'Thom': 'NP', 'CCC': 'NP-TL', 'Farneses': 'NPS',
-          'bouanahsha': 'FW-VB-NC', 'bucking-up': 'NN', 'di': 'FW-IN-TL', 'hundred-and-fifty': 'CD', 'groaning': 'VBG',
-          "Dave's": 'NP$', 'heroically': 'RB', 'wallow': 'VB', 'Entwhistle': 'NP', 'bantered': 'VBN',
-          'pooh-poohed': 'VBD', 'silvas': 'FW-NNS', 'filched': 'VBD', 'interns': 'NNS', 'Gauntley': 'NP', 'spa': 'NN',
-          'cameos': 'NNS', 'fancy-free': 'JJ', 'coconut-containing': 'JJ', 'too-shiny': 'JJ', 'caper': 'NN',
-          "'fess": 'VB', 'Fan': 'VB', 'Bananas': 'NNS', "could've": 'MD+HV', 'Furnaces': 'NNS-TL', 'good-living': 'JJ',
-          '$85,000': 'NNS', 'Fauntleroy': 'NP-TL', 'Daphne': 'NP', 'stringed': 'VBN', 'sarcastic': 'JJ',
-          'unfunny': 'JJ', 'ajar': 'RB', 'fuchsia': 'NN', "Fair's": 'NN$-TL', 'round-eyed': 'JJ',
-          'Neurenschatz': 'NP-TL', "Salter's": 'NP$', 'worrisome': 'JJ', 'unquenched': 'JJ', 'disbelieves': 'VBZ',
-          'timidly': 'RB', 'Sevigli': 'NP-TL', 'mist-like': 'JJ', 'topcoat': 'NN', 'paranoiac': 'NN',
-          'refuse-littered': 'JJ', 'retrospective': 'NN', 'sleepwalker': 'NN', 'movie-goer': 'NN', 'Subdued': 'VBN',
-          'Soaring': 'VBG', 'dried-up': 'JJ', 'Triomphe': 'FW-NN-TL', 'non-English': 'NN', 'Indefinite': 'JJ',
-          'snuffboxes': 'NNS', 'quibs': 'NNS', 'jokers': 'NNS', 'worktable': 'NN', 'outta': 'RP+IN', 'perk': 'VB',
-          'photorealism': 'NN', "Parkinson's": 'NP$', 'half-smile': 'NN', 'Burkette': 'NP', "Haumd's": 'NP$',
-          'paso': 'FW-NN', 'prohibitive': 'JJ', 'off-key': 'JJ', 'homesteads': 'NNS', 'raffish': 'JJ',
-          'clattering': 'VBG', 'glommed': 'VBD', 'horse-blanket': 'NN', 'moontrack': 'NN', 'teakwood': 'NN',
-          'svelte': 'JJ', 'jag': 'NN', 'midsts': 'NNS', 'pocketful': 'NN', 'wops': 'VBZ', 'Run-down': 'JJ',
-          'cacophony': 'NN', 'grindstone': 'NN', 'Tjokorda': 'NP', 'gleeful': 'JJ', "Bartoli's": 'NP$', "Y'r": 'PP$',
-          'clucked': 'VBD', 'Schmalma': 'NP', 'Aquacutie': 'NP', 'crimsoning': 'VBG', 'curls': 'NNS', 'brothel': 'NN',
-          'blondes': 'NNS', 'Carnegie-Illinois': 'NP', 'retrieve': 'VB', 'disquiet': 'NN', "musn't": 'MD*',
-          'Grinned': 'VBN', 'cocu': 'FW-NN', 'Spector': 'NP', 'Murkland': 'NP', 'feathery': 'JJ', 'Presence': 'NN-TL',
-          'saner': 'JJR', 'Deus': 'FW-NP', 'Eddies': 'NNS-TL', 'dwelt': 'VBD', 'pratakku': 'FW-NN', 'laments': 'NNS',
-          'tinkling': 'VBG', 'ice-feeling': 'JJ', 'Fights': 'NNS', 'pamper': 'VB', 'Doolittle': 'NP', 'warm-up': 'NN',
-          "devil's-food": 'NN', "Via's": 'NP$', "Hershey's": 'NP$', 'hangouts': 'NNS', 'welts': 'NNS', 'graham': 'NN',
-          'turnaround': 'NN', 'gai': 'FW-JJ', 'A40-AjK': 'NN', 'Quizzical': 'JJ-TL', "Hadn't": 'HVD*', 'Sylphide': 'NP',
-          "Marquis'": 'NP$', 'Carthage': 'NP', 'four-wheel-drive': 'NN', 'WPA': 'NP-TL', 'horoscope': 'NN',
-          'misty-eyed': 'JJ', 'Abernathys': 'NPS', 'Puny': 'JJ', 'curvaceously': 'RB', "hall's": 'NN$', 'pored': 'VBD',
-          'self-serve': 'NN', "Gladdy's": 'NP$', 'hemlocks': 'NNS', 'misdirectors': 'NNS', "Roylott's": 'NP$',
-          'Hmm': 'UH', 'Lie': 'VB', 'unfrosted': 'JJ', 'Craddock': 'NP', 'Belletch': 'NP', 'laughingly': 'RB',
-          'Gasse': 'NN-TL', 'fonder': 'JJR', 'old-grad-type': 'NN', 'Phineoppus': 'NP', 'Attending': 'VBG',
-          'sizzle': 'VB', 'Parioli': 'NP', 'understated': 'VBN', 'mailman': 'NN', 'romping': 'VBG', 'insolently': 'RB',
-          'mightily': 'RB', 'tugging': 'VBG', 'Angeles-Pasadena': 'NP-TL', 'prudent': 'JJ', 'exhaling': 'VBG',
-          'mollified': 'VBN', 'applejack': 'NN', "trippin'": 'VBG', "Arlene's": 'NP+BEZ', 'Dearly': 'RB', 'Cause': 'NN',
-          'Ambiguity': 'NN', 'Heinzes': 'NPS', 'non-fiction': 'NN', 'invigorating': 'VBG', 'antic': 'JJ',
-          'competency': 'NN', 'fluff': 'NN', 'Niobe': 'NP', 'drawn-back': 'JJ', 'sprig': 'NN', 'linden': 'NN',
-          'del': 'FW-IN+AT-TL', 'leprosy': 'NN', 'buttocks': 'NNS', "Anniston's": 'NP$', 'Colmans': 'NPS',
-          'curio': 'NN', 'jimmied': 'VBD', 'affianced': 'VBN', 'storming': 'VBG', 'kotowaza': 'FW-NN',
-          "murderer's": 'NN$', 'shrilled': 'VBD', 'taunting': 'VBG', 'blush': 'VB', 'incubi': 'NNS',
-          'freight-jumper': 'NN', 'navy-blue': 'JJ', 'girlie': 'NN', "batter's": 'NN$', 'moonlit': 'JJ',
-          'talons': 'NNS', 'donning': 'VBG', 'gossiping': 'VBG', 'Rosalie': 'NP', 'crocked': 'VBN', 'bloodspots': 'NNS',
-          'frogs': 'NNS', 'Trianon': 'NP-TL', 'second-story': 'NN', 'fontanel': 'NN', 'Spegititgninino': 'NP-TL',
-          'vanishes': 'VBZ', 'eye-beamings': 'NNS', 'Zingggg-O': 'UH', 'Esperanza': 'NP-TL', 'punks': 'NNS',
-          "Y're": 'PPSS+BER', 'loafed': 'VBD', 'rages': 'NNS', 'Kodaks': 'NPS', 'P.GA': 'NP', 'peaches': 'NNS',
-          'pivoting': 'VBG', 'Hardwicke': 'NP', 'rifling': 'NN', 'whimper': 'VB', 'frog-eating': 'JJ', 'Nurse': 'NN-TL',
-          'noisier': 'JJR', 'unease': 'NN', 'Gwen': 'NP', 'chided': 'VBD', 'Sparky': 'NP', 'ideologist': 'NN',
-          'diapiace': 'FW-VBZ', 'Schlek': 'NP', 'azalea': 'NN', 'unyielding': 'JJ', 'sub-assembly': 'NN', 'Gerry': 'NP',
-          "Fran's": 'NP$', 'makeshifts': 'NNS', 'khaki': 'JJ', 'non-books': 'NNS', 'Canute': 'NP', 'Bambi': 'NP',
-          'Resolving': 'VBG', 'hazel': 'NN', 'grasses': 'NNS', 'satin-covered': 'JJ', 'Mousie': 'NP', 'Vue': 'NP',
-          'Hetty': 'NP', 'baffle': 'VB', 'astringency': 'NN', 'glissade': 'NN', 'quench': 'VB', 'fluke': 'NN',
-          'bangish': 'JJ', "Elec's": 'NP$', 'semi-ambiguous': 'JJ', 'sulks': 'NNS', 'soul-searching': 'JJ',
-          "cousins'": 'NNS$', 'Joviality': 'NN', 'New-Waver': 'NP', 'sucker-rolling': 'JJ', 'biter': 'NN',
-          'Harvie': 'NP', 'forked': 'VBN', 'skeletons': 'NNS', 'Kali': 'NP', "one-o'clock": 'NN', 'unwaivering': 'JJ',
-          'digger': 'NN', 'fray': 'NN', 'buckling': 'VBG', 'subcontinent': 'NN', 'thickest': 'JJT', 'Shapes': 'NNS',
-          'topgallant': 'NN', 'gantlet': 'NN', "Springfield's": 'NP+BEZ', 'Salpetriere': 'NP', 'Diet': 'NN-TL',
-          'Mushr': 'NP', 'decked': 'VBN', 'unhesitant': 'JJ', 'pattered': 'VBD', 'satirist': 'NN', 'gagline': 'NN',
-          'nonism': 'NN', 'pre-empting': 'JJ', 'indigestion': 'NN', 'Bookies': 'NNS', 'cartons': 'NNS',
-          'Inscribed': 'VBN', 'messing': 'VBG', 'overgenerous': 'JJ', 'long-sleeved': 'JJ', 'leavings': 'NNS',
-          'shape-up': 'JJ', "Lalaurie's": 'NP$', 'maxim': 'NN', 'seekingly': 'RB', 'Francie': 'NP', 'reliably': 'RB',
-          'Partlow': 'NP', "Susan's": 'NP$', 'slashes': 'NNS', 'affronted': 'VBN', 'sops': 'NNS', 'freakish': 'JJ',
-          'delenda': 'FW-VBG', 'flautist': 'NN', 'rosebush': 'NN', 'Hamrick': 'NP', 'zoooop': 'UH', 'team-mate': 'NN',
-          'drudgery': 'NN', 'heiress': 'NN', 'Quint': 'NP', 'to-and-fro': 'RB', 'blossomed': 'VBD',
-          'non-readers': 'NNS', 'hair-trigger': 'NN', 'Kare': 'NN-TL', 'Non-God': 'NP', 'Anglo-American': 'JJ',
-          'SS.': 'NP', 'brazier': 'NN', 'Crombie': 'NP', 'discolored': 'VBN', 'Anglo-Americans': 'NPS',
-          'living-room': 'NN', 'lunatic': 'JJ', 'Drive-in': 'NN-TL', 'unflagging': 'JJ', 'Appaloosas': 'NPS',
-          'blanche': 'JJ', 'Baccarat': 'NP', 'Honshu': 'NP', 'Wynn': 'NP', 'unclasping': 'VBG', 'Madam': 'NN-TL',
-          'cameramen': 'NNS', 'bookies': 'NNS', 'stupefying': 'VBG', 'fermenting': 'VBG', 'twirlingly': 'RB',
-          'Appian': 'NP-TL', 'Feeley': 'NP', 'somewheres': 'RB', 'misnomer': 'NN', 'flippant': 'JJ',
-          'all-American-boy': 'JJ', "Hope's": 'NP$', 'perpetration': 'NN', 'Diego': 'NP', 'mild-voiced': 'JJ',
-          'lonesome': 'JJ', 'unfalteringly': 'RB', 'Heads': 'NNS', 'Minks': 'NP', 'patina': 'NN', 'Carthago': 'FW-NP',
-          'cosy': 'JJ', 'overhand': 'RB', 'Shafer': 'NP', 'connivance': 'NN', 'debs': 'NNS', "Pete's": 'NP$',
-          'stooooomp': 'VB', 'sundials': 'NNS', 'flee': 'VB', 'double-entendre': 'NN', 'unglued': 'JJ',
-          'Pioneers': 'NNS-TL', 'princess-in-a-carriage': 'NN', 'gainer': 'NN', 'Rufus': 'NP', 'Adelia': 'NP',
-          'ba-a-a': 'UH', 'goddamit': 'UH', 'Doaty': 'NP', 'assortment': 'NN', "ever-lovin'": 'JJ',
-          'thick-skulled': 'JJ', 'Khartoum': 'NP', 'crisscrossed': 'VBN', 'Constance': 'NP', 'rooftree': 'NN',
-          'fawn-colored': 'JJ', 'Signora': 'NP', 'Smithtown': 'NP', 'Kool-Aid': 'NP', "Linda's": 'NP$',
-          'stumbles': 'VBZ', 'refolded': 'VBD', 'valueless': 'JJ', 'screw-loose': 'JJ', "Marshall's": 'NP$',
-          'shackles': 'NNS', 'forepart': 'NN', 'Kizzie': 'NP', 'hop': 'NN', 'titters': 'NNS', 'chromed': 'VBN',
-          "Freddy's": 'NP$', 'paraphrasing': 'VBG', 'pre-packed': 'JJ', 'Wilhelmina': 'NP', 'statuette': 'NN',
-          'lowly': 'JJ', 'fantods': 'NNS', 'proto-senility': 'NN', 'retrogressive': 'JJ', 'savagery': 'NN',
-          'hare': 'NN', 'by-ways': 'NNS', 'dark-blue': 'JJ', 'bedspread': 'NN', 'Signor': 'NP', 'Pietro': 'NP',
-          'Addict': 'NN-HL', 'anyplace': 'RB', 'many-times': 'NNS', 'horn-rimmed': 'JJ', 'bran': 'NN', 'lizards': 'NNS',
-          'mariner': 'NN', 'Rilke': 'NP', 'Implements': 'NNS', 'Cabrini': 'NP', 'monies': 'NNS', 'grammarians': 'NNS',
-          'Henh': 'UH', 'well-dressed': 'JJ', 'probly': 'RB', 'ex-musician': 'NN', 'les': 'FW-AT', 'Collector': 'NN-TL',
-          'dang': 'JJ', 'trilled': 'VBD', "Cathy's": 'NP$', 'Ciao': 'FW-UH', 'enamelled': 'VBN',
-          'semi-professionally': 'RB', 'Angleterre': 'FW-NP', 'suppleness': 'NN', 'Idol': 'NN-HL', 'abated': 'VBD',
-          'chump': 'NN', 'souvenirs': 'NNS', 'pap': 'NN', 'uncolored': 'JJ', 'Balinese': 'NP', 'Quasimodo': 'NP',
-          'femme': 'FW-NN', 'fumed': 'VBD', 'contentment': 'NN', 'steels': 'NNS', 'Louvre': 'NP', 'leitmotiv': 'NN',
-          'Goolick': 'UH', 'outfielders': 'NNS', 'Laban': 'NP', 'Tillie': 'NP', 'scenario': 'NN', 'dabbler': 'NN',
-          'colloquy': 'NN', 'poshest': 'JJT', 'slumbered': 'VBD', "policeman's": 'NN$', 'unhinged': 'VBN',
-          'saleslady': 'NN', 'objets': 'FW-NNS', 'slyly': 'RB', "'ello": 'UH', 'davenport': 'NN', 'fortresses': 'NNS',
-          'aviary': 'NN', 'yapping': 'VBG', 'Three-day': 'JJ', 'flageolet': 'NN', 'waistcoat': 'NN', 'pinball': 'NN',
-          'tramp': 'NN', 'Occidental': 'JJ-TL', 'Rossoff': 'NP', 'Ainus': 'NPS', "Brandon's": 'NP$', 'scorcher': 'NN',
-          'Oyajima': 'NP', 'Stuck-up': 'JJ-TL', 'dune': 'NN', 'dragon': 'NN', 'Guggenheim': 'NP', 'Mehitabel': 'NP',
-          'garlanded': 'VBD', 'metal-tasting': 'JJ', 'cheekbones': 'NNS', 'gird': 'VB', 'Strangely': 'RB',
-          'Haumd': 'NP', 'brunettes': 'NNS', 'Ugh': 'UH', 'over-spent': 'VBN', 'to-do': 'NN', 'hit-and-miss': 'JJ',
-          'eight-thirty': 'CD', 'flower-scented': 'JJ', 'coral-colored': 'JJ', 'tragicomic': 'JJ', 'Dominique': 'NP',
-          'sophisticates': 'NNS', 'Vivian': 'NP', 'Moreland': 'NP', 'anatomicals': 'NNS', 'Squint': 'NP',
-          'Chinaman': 'NP', 'yokel': 'NN', 'half-murmured': 'JJ', 'Washoe': 'NP-TL'}
+PSEUDO = {}
 
 
-def generatePseudo(train, test):
+def generatePseudo(train_sentences, test_sentences):
     m = {}
-    obj = hmm()
-    obj.train(train)
-    t = obj.getWordToTagCount()
-    for sentence in test:
+    for sentence in train_sentences:
         for word, tag in sentence:
-            if word not in t:
-                if word not in m:
-                    m[word] = dict()
-                if tag not in m[word]:
-                    m[word][tag] = 1
-                else:
-                    m[word][tag] += 1
+            if word not in m:
+                m[word] = {}
+            if tag in m[word]:
+                m[word][tag] += 1
+            else:
+                m[word][tag] = 1
+    for sentence in test_sentences:
+        for word, tag in sentence:
+            if word not in m:
+                m[word] = dict()
+            if tag in m[word]:
+                m[word][tag] += 1
+            else:
+                m[word][tag] = 1
 
     pseudo = {}
     for word in m.keys():
-        most_common_tag = max(m[word], key=m[word].get)
-        pseudo[word] = most_common_tag
-
-    print(pseudo)
+        if sum(m[word].values()) > 5:
+            continue
+        word = str(word)
+        if word.startswith("anti"):
+            pseudo[word] = 'against'
+        elif word.startswith("pre"):
+            pseudo[word] = 'prefix'
+        elif word.startswith("mis"):
+            pseudo[word] = 'misfire'
+        elif word.startswith('over'):
+            pseudo[word] = 'over'
+        elif word[0].isupper():
+            pseudo[word] = 'upper'
+        elif any(char.isdigit() for char in word):
+            pseudo[word] = 'hasDigit'
+        elif word.endswith('ed'):
+            pseudo[word] = 'past'
+        elif word.endswith('ment'):
+            pseudo[word] = 'action'
+        elif word.endswith('ly'):
+            pseudo[word] = 'charof'
+        # else:
+        #     print("Passed: " + word )
     return pseudo
 
 
 if __name__ == '__main__':
-    train, test = ex2Sol.getTaggedSentences()
-    obj = hmm()
-    obj.train(train)
-    total, seen, unseen = obj.test(test_sentences=test)
+    train_sentences, test_sentences = ex2Sol.getTaggedSentences()
+    pseudo_words = generatePseudo(train_sentences, test_sentences)
+
+    total, seen, unseen = ex2Sol.HMMbigramTagger(train_sentences, test_sentences)
     print("loss - normal :\n"
           "total:{total}  seen:{seen} unseen:{unseen}"
-          .format(total=total,seen=seen,unseen=unseen))
+          .format(total=total, seen=seen, unseen=unseen))
 
-    obj.setDelta(1)
-    total,seen,unseen = obj.test(test_sentences=test)
+    total, seen, unseen = ex2Sol.HMMbigramTaggerWithSmooth(train_sentences, test_sentences)
     print("loss - Smooth :\n"
           "total:{total}  seen:{seen} unseen:{unseen}"
-          .format(total=total,seen=seen,unseen=unseen))
-    obj.setDelta(0)
-    obj.setPseudo(PSEUDO)
-    total, seen, unseen = obj.test(test_sentences=test)
+          .format(total=total, seen=seen, unseen=unseen))
+
+    print("mapping")
+    for j in range(len(train_sentences)):
+        for i in range(len(train_sentences[j])):
+            if train_sentences[j][i][0] in pseudo_words:
+                train_sentences[j][i][0] = pseudo_words[train_sentences[j][i][0]]
+
+    for j in range(len(test_sentences)):
+        for i in range(len(test_sentences[j])):
+            if test_sentences[j][i][0] in pseudo_words:
+                test_sentences[j][i][0] = pseudo_words[test_sentences[j][i][0]]
+    print("done")
+
+    total, seen, unseen = ex2Sol.HMMbigramTagger(train_sentences, test_sentences)
     print("loss - pseudo:\n"
           "total:{total}  seen:{seen} unseen:{unseen}"
-          .format(total=total,seen=seen,unseen=unseen))
+          .format(total=total, seen=seen, unseen=unseen))
 
-    obj.setDelta(1)
-    total, seen, unseen = obj.test(test_sentences=test)
+    total, seen, unseen = ex2Sol.HMMbigramTaggerWithSmooth(train_sentences, test_sentences)
     print("loss - pseudo and smooth:\n"
           "total:{total}  seen:{seen} unseen:{unseen}"
-          .format(total=total,seen=seen,unseen=unseen))
-
+          .format(total=total, seen=seen, unseen=unseen))
