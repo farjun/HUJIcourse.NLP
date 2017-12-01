@@ -44,7 +44,7 @@ class HMMBigramTagger:
                 self.updateTagCount(tag=tag)
         self.__sk = [["*"]] + [list(self.__tags_count.keys())]
         for i in range(len(self.__sk[1])):
-            self.__tag_to_index[self.__sk[i]] = i
+            self.__tag_to_index[self.__sk[1][i]] = i
         self.__most_common_tag = max(self.__tags_count, key=self.__tags_count.get)
         self.__bestIndex = self.__sk[1].index(self.__most_common_tag)
 
@@ -76,7 +76,11 @@ class HMMBigramTagger:
     # <editor-fold desc="Test">
     def test(self, test_sentences) -> [float, float, float]:
         confusion_matrix = np.zeros((len(self.__sk[1]), len(self.__sk[1])))
+        i = 0
         for cur_sentence in test_sentences:
+            i += 1
+            if i % 100 == 0:
+                print(i)
             sentence = cur_sentence[:, 0]  # remove tags
             correct_tags = cur_sentence[:, 1]  # remove words
             tagged_sentence = self.tag(sentence=sentence)
@@ -205,7 +209,10 @@ class HMMBigramTagger:
             algorithem_tag = algorithem_tags[i]
             correct_tag = correct_tags[i]
             if correct_tag in self.__tag_to_index:  # check if in a tags MAP
-                confusion_matrix[self.__tag_to_index[correct_tags], self.__tag_to_index[algorithem_tag]] += 1
+                # confusion_matrix[self.__tag_to_index[correct_tags], self.__tag_to_index[algorithem_tag]] += 1
+                # t1 = self.__tag_to_index[correct_tag]
+                # t2 = self.__tag_to_index[algorithem_tag]
+                confusion_matrix[self.__tag_to_index[correct_tag]][ self.__tag_to_index[algorithem_tag]] += 1
 
     def aaa(self):
 
