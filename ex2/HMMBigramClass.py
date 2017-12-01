@@ -167,7 +167,7 @@ class HMMBigramTagger:
         if word in self.__pseudo_words_to_tag:
             return int(tag in self.__pseudo_words_to_tag[word])
         if word not in self.__word_to_tag_count:
-            # print("didn't saw {word} in training.".format(word=word))
+            print("didn't saw {word} in training.".format(word=word))
             return 0
         if tag not in self.__word_to_tag_count[word]:
             # print("didn't saw {word} with {tag} in training.".format(word=word, tag=tag))
@@ -180,6 +180,10 @@ class HMMBigramTagger:
         if prev_tag in self.__tag_to_next_tag_count and cur_tag in self.__tag_to_next_tag_count[prev_tag]:
             return self.__tag_to_next_tag_count[prev_tag][cur_tag] / self.__tags_count[prev_tag]
         return 0
+
+    def getWordToTagCount(self):
+        return self.__word_to_tag_count
+
 
     # </editor-fold>
     def aaa(self):
