@@ -17,7 +17,6 @@ class HMMBigramTagger:
         self.__correct_words_counter = 0
         self.__most_common_tag = "."
 
-
     # </editor-fold>
 
     # <editor-fold desc="Train">
@@ -66,7 +65,10 @@ class HMMBigramTagger:
 
     # <editor-fold desc="Test">
     def test(self, test_sentences) -> float:
+        import time
+        s = time.time()
         self.__generateSK()
+        self.__setBestIndex()
         print(len(test_sentences))
         i = 0
         for cur_sentence in test_sentences:
@@ -77,13 +79,18 @@ class HMMBigramTagger:
             correct_tags = cur_sentence[:, 1]  # remove words
             tagged_sentence = self.__tag(sentence=sentence)
             self._computeError(tagged_sentence, correct_tags)
-        return self.__correct_words_counter / self.__words_counter
+        print("Time took to tag: {time}".format(time=time.time() - s))
+        return 1 - (self.__correct_words_counter / self.__words_counter)
 
     def __generateSK(self):
         self.__sk = [["*"]] + [self.__getPossibleTags()]
 
     def __getPossibleTags(self) -> list:
         return list(self.__tags_count.keys())
+
+    def __setBestIndex(self):
+        self.__bestIndex = self.__sk[1].index(self.__most_common_tag)
+        pass
 
     def _computeError(self, out_tags: np.ndarray, correct_tags: np.ndarray):
         self.__words_counter += len(out_tags)
@@ -135,35 +142,30 @@ class HMMBigramTagger:
             possible_prev_tags = tags
         return probabilityMatrix, backPointersIndexes
 
-    def __findMaxProbabilityFromLastRow(self, probability_matrix_row, word, possible_prev_tags, cur_tag) \
-            -> [float, str]:
-
-        bestPrevTagIndex = 0
-        bestProbability = 0
+    def __findMaxProbabilityFromLastRow(self, probability_row, word, prev_tags, cur_tag) -> [float, str]:
         emission = self.__getEmission(cur_tag, word)
-        if not emission:
-            return bestProbability, bestPrevTagIndex
+        if emission == 0:
+            bestProbability = 0
+            if not len(prev_tags) == 1:
+                bestPrevTagIndex = self.__bestIndex
+            else:
+                bestPrevTagIndex = 0
 
-        if not len(possible_prev_tags) == 1:
-            temp = np.array([self.__getQProbability(cur_tag, prev_tag) for prev_tag in possible_prev_tags],
+        elif not len(prev_tags) == 1:
+            temp = np.array([self.__getQProbability(cur_tag, prev_tag) for prev_tag in prev_tags],
                             dtype=np.float64)
-            temp = emission * temp * probability_matrix_row
+            temp = emission * temp * probability_row
             bestProbability = np.max(temp)
-            bestPrevTagIndex = (np.nonzero(temp == bestProbability))[0][0]
+            if bestProbability:
+                bestPrevTagIndex = (np.nonzero(temp == bestProbability))[0][0]
+            else:
+                bestPrevTagIndex = self.__bestIndex
         else:
-            for j in range(len(possible_prev_tags)):
-                perv_tag = possible_prev_tags[j]
-                q = self.__getQProbability(cur_tag, perv_tag)
-                pi = probability_matrix_row[j]
-                probability = pi * q * emission
-
-                # print("probability of them: ", q*emission*pi)
-                if probability > bestProbability:
-                    bestProbability = probability
-                    bestPrevTagIndex = j
-
-        if bestProbability == 0 and self.__most_common_tag in possible_prev_tags:
-            bestPrevTagIndex = possible_prev_tags.index(self.__most_common_tag)
+            perv_tag = prev_tags[0]
+            q = self.__getQProbability(cur_tag, perv_tag)
+            pi = probability_row[0]
+            bestProbability = pi * q * emission
+            bestPrevTagIndex = 0
 
         return bestProbability, bestPrevTagIndex
 
@@ -172,18 +174,15 @@ class HMMBigramTagger:
             # print("didn't saw {word} in training.".format(word=word))
             return 0
         if tag not in self.__word_to_tag_count[word]:
-            # print("didn't saw {word} with {tag} in training.".format(word=word,tag=tag))
+            # print("didn't saw {word} with {tag} in training.".format(word=word, tag=tag))
             return 0
         appearance = self.__word_to_tag_count[word][tag] + self.__delta
         totalTag = self.__tags_count[tag] + len(self.__word_to_tag_count) * self.__delta
         return appearance / totalTag
 
     def __getQProbability(self, cur_tag, prev_tag):
-        if cur_tag not in self.__tags_count:
-            return 0
-        if prev_tag in self.__tag_to_next_tag_count:
-            if cur_tag in self.__tag_to_next_tag_count[prev_tag]:
-                return self.__tag_to_next_tag_count[prev_tag][cur_tag] / self.__tags_count[cur_tag]
+        if prev_tag in self.__tag_to_next_tag_count and cur_tag in self.__tag_to_next_tag_count[prev_tag]:
+            return self.__tag_to_next_tag_count[prev_tag][cur_tag] / self.__tags_count[cur_tag]
         return 0
 
     # </editor-fold>
