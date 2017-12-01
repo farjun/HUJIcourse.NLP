@@ -46,6 +46,14 @@ def generatePseudo(train_sentences, test_sentences):
             pseudo[word] = 'action'
         elif word.endswith('ly'):
             pseudo[word] = 'charof'
+        elif '-' in word:
+            pseudo[word] = 'has-'
+        elif word.endswith('ing'):
+            pseudo[word] = 'ing'
+        elif word.endswith('\'s'):
+            pseudo[word] = 'owns'
+        elif word.endswith('ous'):
+            pseudo[word] = 'ous'
         # else:
         #     print("Passed: " + word )
     return pseudo
