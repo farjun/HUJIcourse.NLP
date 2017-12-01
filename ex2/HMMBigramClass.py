@@ -108,6 +108,10 @@ class HMMBigramTagger:
         # add start to the sentence
         probMatrix, backPointers = self.getProbMatrix(Sk, np.insert(sentence, 0, "START"))
 
+
+        for i in range(len(probMatrix[-1])):
+            probMatrix[-1][i] =  probMatrix[-1][i]*self.getQProbability(list_of_possible_tags[i],"*")
+
         bestProbIndex = np.argmax(probMatrix[-1],axis=0)
 
         return self.constructTags(backPointers, bestProbIndex, list_of_possible_tags, sentence)
@@ -201,7 +205,8 @@ class HMMBigramTagger:
         for i in range(len(algorithem_tags)):
             algorithem_tag = algorithem_tags[i]
             correct_tag = correct_tags[i]
-            confusion_matrix[tags.index(correct_tags)][tags.index(algorithem_tags)] +=1
+            if correct_tag in tags:
+                confusion_matrix[tags.index(correct_tag),tags.index(algorithem_tag)] +=1
 
 
     def aaa(self):
