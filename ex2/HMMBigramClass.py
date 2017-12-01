@@ -9,7 +9,7 @@ class HMMBigramTagger:
         self.__word_to_tag_count = {}
         self.__tag_to_next_tag_count = {}
         self.__tags_count = {}
-        self.__pseudo_words_to_tag = pseudo_words_to_tag
+        self.__pseudo_words_to_tag = pseudo_words_to_tag if pseudo_words_to_tag else {}
         self.__delta = delta
 
         # error variables
@@ -97,6 +97,7 @@ class HMMBigramTagger:
         probMatrix, backPointers = self.getProbMatrix(Sk, np.insert(sentence, 0, "START"))
         bestProbIndex = -1
         bestProb = 0
+
         for i in range(len(probMatrix[-1])):
             prob = probMatrix[-1][i]
             if prob > bestProb:
@@ -120,13 +121,15 @@ class HMMBigramTagger:
         backPointersIndexes = np.zeros((sentence_length, number_of_tags), dtype=np.int)
 
         # set probability of Start to 1 in all rows
-        probabilityMatrix[0] = 1
+        probabilityMatrix[0][0] = 1
         backPointersIndexes[0] = 0
         possible_prev_tags = Sk[0]
         tags = Sk[1]
         for i in range(1, sentence_length):
             word = sentence[i]
             probability_matrix_row = probabilityMatrix[i - 1]
+            # print(np.sum(probability_matrix_row))
+
             for j in range(number_of_tags):
                 probabilityMatrix[i, j], backPointersIndexes[i, j] = \
                     self.findMaxProbabilityFromLastRow(probability_matrix_row, word, possible_prev_tags, tags[j])
@@ -161,6 +164,8 @@ class HMMBigramTagger:
         return bestProbability, bestPrevTagIndex
 
     def getEmission(self, tag, word) -> float:
+        if word in self.__pseudo_words_to_tag:
+            return int(tag in self.__pseudo_words_to_tag[word])
         if word not in self.__word_to_tag_count:
             # print("didn't saw {word} in training.".format(word=word))
             return 0
@@ -168,16 +173,15 @@ class HMMBigramTagger:
             # print("didn't saw {word} with {tag} in training.".format(word=word, tag=tag))
             return 0
         appearance = self.__word_to_tag_count[word][tag] + self.__delta
-        totalTag = self.__tags_count[tag] + len(self.__word_to_tag_count) * self.__delta
-        return appearance / totalTag
+        total_tag = self.__tags_count[tag] + len(self.__word_to_tag_count) * self.__delta
+        return appearance / total_tag
 
     def getQProbability(self, cur_tag, prev_tag):
         if prev_tag in self.__tag_to_next_tag_count and cur_tag in self.__tag_to_next_tag_count[prev_tag]:
-            return self.__tag_to_next_tag_count[prev_tag][cur_tag] / self.__tags_count[cur_tag]
+            return self.__tag_to_next_tag_count[prev_tag][cur_tag] / self.__tags_count[prev_tag]
         return 0
 
     # </editor-fold>
-
     def aaa(self):
 
         pass
