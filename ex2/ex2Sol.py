@@ -4,12 +4,11 @@ from ex2.HMMBigramClass import HMMBigramTagger as HMM
 from ex2.MostLikelyTagBaseline import MostLikelyTagBaseline as MLT
 
 # <editor-fold desc="Q2.a">
-def getTaggedSentences():
-    tagged_sents = np.array(nltk.corpus.brown.tagged_sents())
+def getTaggedSentences()-> [np.ndarray,np.ndarray]:
+    tagged_sents = np.array([np.array(sentence) for sentence in nltk.corpus.brown.tagged_sents()])
     corpus_size = tagged_sents.size
     # splits the data into 2 sets - train and test set
-    test_sentences = tagged_sents[round(corpus_size * 0.9):corpus_size]
-    train_sentences = tagged_sents[:round(corpus_size * 0.9)]
+    train_sentences,test_sentences = np.split(tagged_sents,[round(corpus_size * 0.9)])
     return train_sentences, test_sentences
 
 
@@ -26,7 +25,6 @@ def base(train_sentences, test_sentences):
 # </editor-fold>
 
 # <editor-fold desc="Q2.c">
-
 def HMMbigramTagger(train_sentences, test_sentences):
     tagger = HMM()
     tagger.train(train_sentences=train_sentences)
