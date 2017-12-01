@@ -1,5 +1,5 @@
 import numpy as np
-
+import operator
 
 class HMMBigramTagger:
     # <editor-fold desc="Init">
@@ -14,6 +14,7 @@ class HMMBigramTagger:
         # error variables
         self.__words_counter = 0
         self.__correct_words_counter = 0
+        self.__most_common_tag = "."
 
     # </editor-fold>
 
@@ -34,6 +35,7 @@ class HMMBigramTagger:
                 self.__updateWordToTag(tag=tag, word=word)
                 self.__updateTagToNextTag(tag=tag, next_tag=next_tag)
                 self.__updateTagCount(tag=tag)
+        self.__most_common_tag = max(self.__tags_count, key=self.__tags_count.get)
 
     def __updateTagCount(self, tag) -> None:
         if tag not in self.__tags_count:
@@ -138,6 +140,10 @@ class HMMBigramTagger:
             if probability > bestProbability:
                 bestProbability = probability
                 bestPrevTagIndex = j
+
+            if bestProbability == 0 and self.__most_common_tag in possible_prev_tags:
+                bestPrevTagIndex = possible_prev_tags.index(self.__most_common_tag)
+                bestProbability = 1 # todo maybe we need this to make sure this tag gets selected?
 
         return bestProbability, bestPrevTagIndex
 
