@@ -16,6 +16,8 @@ class HMMBigramTagger:
         self.__words_counter = 0
         self.__correct_words_counter = 0
         self.__most_common_tag = "."
+        self.__bestIndex = 0
+        self.__sk = [[]]
 
     # </editor-fold>
 
@@ -33,18 +35,20 @@ class HMMBigramTagger:
                 else:
                     word, tag = sentence[i]
                     _, next_tag = sentence[i + 1]
-                self.__updateWordToTag(tag=tag, word=word)
-                self.__updateTagToNextTag(tag=tag, next_tag=next_tag)
-                self.__updateTagCount(tag=tag)
+                self.updateWordToTag(tag=tag, word=word)
+                self.updateTagToNextTag(tag=tag, next_tag=next_tag)
+                self.updateTagCount(tag=tag)
+        self.__sk = [["*"]] + [list(self.__tags_count.keys())]
         self.__most_common_tag = max(self.__tags_count, key=self.__tags_count.get)
+        self.__bestIndex = self.__sk[1].index(self.__most_common_tag)
 
-    def __updateTagCount(self, tag) -> None:
+    def updateTagCount(self, tag) -> None:
         if tag not in self.__tags_count:
             self.__tags_count[tag] = 1
         else:
             self.__tags_count[tag] += 1
 
-    def __updateTagToNextTag(self, tag, next_tag) -> None:
+    def updateTagToNextTag(self, tag, next_tag) -> None:
         if tag not in self.__tag_to_next_tag_count:
             self.__tag_to_next_tag_count[tag] = dict()
         if next_tag not in self.__tag_to_next_tag_count[tag]:
@@ -52,7 +56,7 @@ class HMMBigramTagger:
         else:
             self.__tag_to_next_tag_count[tag][next_tag] += 1
 
-    def __updateWordToTag(self, tag, word) -> None:
+    def updateWordToTag(self, tag, word) -> None:
         if word not in self.__word_to_tag_count:
             self.__word_to_tag_count[word] = dict()
         if tag not in self.__word_to_tag_count[word]:
@@ -67,8 +71,6 @@ class HMMBigramTagger:
     def test(self, test_sentences) -> float:
         import time
         s = time.time()
-        self.__generateSK()
-        self.__setBestIndex()
         print(len(test_sentences))
         i = 0
         for cur_sentence in test_sentences:
@@ -77,26 +79,16 @@ class HMMBigramTagger:
                 print("Test Iter: {i}".format(i=i))
             sentence = cur_sentence[:, 0]  # remove tags
             correct_tags = cur_sentence[:, 1]  # remove words
-            tagged_sentence = self.__tag(sentence=sentence)
-            self._computeError(tagged_sentence, correct_tags)
+            tagged_sentence = self.tag(sentence=sentence)
+            self.computeError(tagged_sentence, correct_tags)
         print("Time took to tag: {time}".format(time=time.time() - s))
         return 1 - (self.__correct_words_counter / self.__words_counter)
 
-    def __generateSK(self):
-        self.__sk = [["*"]] + [self.__getPossibleTags()]
-
-    def __getPossibleTags(self) -> list:
-        return list(self.__tags_count.keys())
-
-    def __setBestIndex(self):
-        self.__bestIndex = self.__sk[1].index(self.__most_common_tag)
-        pass
-
-    def _computeError(self, out_tags: np.ndarray, correct_tags: np.ndarray):
+    def computeError(self, out_tags: np.ndarray, correct_tags: np.ndarray):
         self.__words_counter += len(out_tags)
         self.__correct_words_counter += np.sum(out_tags == correct_tags)
 
-    def __tag(self, sentence: np.ndarray) -> np.ndarray:
+    def tag(self, sentence: np.ndarray) -> np.ndarray:
         # set Sk (tags)
         Sk = self.__sk
         list_of_possible_tags = Sk[1]
@@ -110,10 +102,9 @@ class HMMBigramTagger:
             if prob > bestProb:
                 bestProb = prob
                 bestProbIndex = i
-        tags = self.__constructTags(backPointers, bestProbIndex, list_of_possible_tags, sentence)
-        return tags
+        return self.constructTags(backPointers, bestProbIndex, list_of_possible_tags, sentence)
 
-    def __constructTags(self, backPointers, bestProbIndex, list_of_possible_tags, sentence) -> np.ndarray:
+    def constructTags(self, backPointers, bestProbIndex, list_of_possible_tags, sentence) -> np.ndarray:
         tags = []
         index = bestProbIndex
         for i in range(len(sentence), 0, -1):
@@ -138,12 +129,12 @@ class HMMBigramTagger:
             probability_matrix_row = probabilityMatrix[i - 1]
             for j in range(number_of_tags):
                 probabilityMatrix[i, j], backPointersIndexes[i, j] = \
-                    self.__findMaxProbabilityFromLastRow(probability_matrix_row, word, possible_prev_tags, tags[j])
+                    self.findMaxProbabilityFromLastRow(probability_matrix_row, word, possible_prev_tags, tags[j])
             possible_prev_tags = tags
         return probabilityMatrix, backPointersIndexes
 
-    def __findMaxProbabilityFromLastRow(self, probability_row, word, prev_tags, cur_tag) -> [float, str]:
-        emission = self.__getEmission(cur_tag, word)
+    def findMaxProbabilityFromLastRow(self, probability_row, word, prev_tags, cur_tag) -> [float, str]:
+        emission = self.getEmission(cur_tag, word)
         if emission == 0:
             bestProbability = 0
             if not len(prev_tags) == 1:
@@ -152,7 +143,7 @@ class HMMBigramTagger:
                 bestPrevTagIndex = 0
 
         elif not len(prev_tags) == 1:
-            temp = np.array([self.__getQProbability(cur_tag, prev_tag) for prev_tag in prev_tags],
+            temp = np.array([self.getQProbability(cur_tag, prev_tag) for prev_tag in prev_tags],
                             dtype=np.float64)
             temp = emission * temp * probability_row
             bestProbability = np.max(temp)
@@ -162,14 +153,14 @@ class HMMBigramTagger:
                 bestPrevTagIndex = self.__bestIndex
         else:
             perv_tag = prev_tags[0]
-            q = self.__getQProbability(cur_tag, perv_tag)
+            q = self.getQProbability(cur_tag, perv_tag)
             pi = probability_row[0]
             bestProbability = pi * q * emission
             bestPrevTagIndex = 0
 
         return bestProbability, bestPrevTagIndex
 
-    def __getEmission(self, tag, word) -> float:
+    def getEmission(self, tag, word) -> float:
         if word not in self.__word_to_tag_count:
             # print("didn't saw {word} in training.".format(word=word))
             return 0
@@ -180,7 +171,7 @@ class HMMBigramTagger:
         totalTag = self.__tags_count[tag] + len(self.__word_to_tag_count) * self.__delta
         return appearance / totalTag
 
-    def __getQProbability(self, cur_tag, prev_tag):
+    def getQProbability(self, cur_tag, prev_tag):
         if prev_tag in self.__tag_to_next_tag_count and cur_tag in self.__tag_to_next_tag_count[prev_tag]:
             return self.__tag_to_next_tag_count[prev_tag][cur_tag] / self.__tags_count[cur_tag]
         return 0
