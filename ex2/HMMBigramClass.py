@@ -6,6 +6,7 @@ class HMMBigramTagger:
     # <editor-fold desc="Init">
 
     def __init__(self, delta=0):
+        self.__tag_to_index = {}
         self.__wrong_words_unseen = 0
         self.__unseen_words = 0
         self.__wrong_words_seen = 0
@@ -21,7 +22,6 @@ class HMMBigramTagger:
         self.__most_common_tag = "."
         self.__bestIndex = 0
         self.__sk = [[]]
-
 
     # </editor-fold>
 
@@ -43,6 +43,8 @@ class HMMBigramTagger:
                 self.updateTagToNextTag(tag=tag, next_tag=next_tag)
                 self.updateTagCount(tag=tag)
         self.__sk = [["*"]] + [list(self.__tags_count.keys())]
+        for i in range(len(self.__sk[1])):
+            self.__tag_to_index[self.__sk[i]] = i
         self.__most_common_tag = max(self.__tags_count, key=self.__tags_count.get)
         self.__bestIndex = self.__sk[1].index(self.__most_common_tag)
 
@@ -73,8 +75,7 @@ class HMMBigramTagger:
 
     # <editor-fold desc="Test">
     def test(self, test_sentences) -> [float, float, float]:
-        confusion_matrix = np.zeros((len(self.__sk[1]),len(self.__sk[1])))
-
+        confusion_matrix = np.zeros((len(self.__sk[1]), len(self.__sk[1])))
         for cur_sentence in test_sentences:
             sentence = cur_sentence[:, 0]  # remove tags
             correct_tags = cur_sentence[:, 1]  # remove words
@@ -83,7 +84,7 @@ class HMMBigramTagger:
             # print("correct tags : ", correct_tags,"\n\n")
             # print("our tags : ",tagged_sentence)
             #  update confusion matrix
-            self.updateConfusoinMatrix(confusion_matrix,tagged_sentence,correct_tags)
+            self.updateConfusoinMatrix(confusion_matrix, tagged_sentence, correct_tags)
 
         return (self.__wrong_words_counter / self.__words_counter), \
                (self.__wrong_words_seen / self.__seen_words), \
@@ -92,7 +93,7 @@ class HMMBigramTagger:
     def computeError(self, out_tags: np.ndarray, correct_tags: np.ndarray, sentence: np.ndarray):
         self.__words_counter += len(out_tags)
         self.__wrong_words_counter += np.sum(out_tags != correct_tags)
-        seen = np.array([w in self.__word_to_tag_count for w in sentence],dtype=np.bool)
+        seen = np.array([w in self.__word_to_tag_count for w in sentence], dtype=np.bool)
         unseen = ~seen
 
         self.__seen_words += np.sum(seen)
@@ -108,11 +109,10 @@ class HMMBigramTagger:
         # add start to the sentence
         probMatrix, backPointers = self.getProbMatrix(Sk, np.insert(sentence, 0, "START"))
 
-
-        for i in range(len(probMatrix[-1])):
-            probMatrix[-1][i] =  probMatrix[-1][i]*self.getQProbability(list_of_possible_tags[i],"*")
-
-        bestProbIndex = np.argmax(probMatrix[-1],axis=0)
+        # for i in range(len(probMatrix[-1])):
+        #     probMatrix[-1][i] =  probMatrix[-1][i]*self.getQProbability(list_of_possible_tags[i],"*")
+        give_me_name = np.array([self.getQProbability(tag, "*") for tag in list_of_possible_tags])
+        bestProbIndex = np.argmax(np.dot(probMatrix[-1], give_me_name), axis=0)
 
         return self.constructTags(backPointers, bestProbIndex, list_of_possible_tags, sentence)
 
@@ -200,14 +200,12 @@ class HMMBigramTagger:
     def setDelta(self, delta):
         self.__delta = delta
 
-    def updateConfusoinMatrix(self,confusion_matrix,algorithem_tags,correct_tags):
-        tags = self.__sk[1]
+    def updateConfusoinMatrix(self, confusion_matrix, algorithem_tags, correct_tags):
         for i in range(len(algorithem_tags)):
             algorithem_tag = algorithem_tags[i]
             correct_tag = correct_tags[i]
-            if correct_tag in tags:
-                confusion_matrix[tags.index(correct_tag),tags.index(algorithem_tag)] +=1
-
+            if correct_tag in self.__tag_to_index:  # check if in a tags MAP
+                confusion_matrix[self.__tag_to_index[correct_tags], self.__tag_to_index[algorithem_tag]] += 1
 
     def aaa(self):
 
