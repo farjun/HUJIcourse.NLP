@@ -76,3 +76,12 @@ def HMMbigramTaggerWithPseudoAndSmooth(train_sentences, test_sentences, pseudo_w
                 test_sentences[j][i][0] = pseudo_words[test_sentences[j][i][0]]
     return HMMbigramTaggerWithSmooth(train_sentences,test_sentences)
 # </editor-fold>
+
+
+def optimizedTest(train_sentences, test_sentences):
+    tagger = HMM()
+    tagger.train(train_sentences=train_sentences)
+    errorNormal = tagger.test(test_sentences=test_sentences)
+    tagger.setDelta(1)
+    errorSmooth = tagger.test(test_sentences=test_sentences)
+    return errorNormal,errorSmooth

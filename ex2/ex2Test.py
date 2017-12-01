@@ -63,12 +63,13 @@ if __name__ == '__main__':
     train_sentences, test_sentences = ex2Sol.getTaggedSentences()
     pseudo_words = generatePseudo(train_sentences, test_sentences)
 
-    total, seen, unseen = ex2Sol.HMMbigramTagger(train_sentences, test_sentences)
+    no_pseudo_error = ex2Sol.optimizedTest(train_sentences,test_sentences)
+    total, seen, unseen = no_pseudo_error[0]
     print("loss - normal :\n"
           "total:{total}  seen:{seen} unseen:{unseen}"
           .format(total=total, seen=seen, unseen=unseen))
 
-    total, seen, unseen = ex2Sol.HMMbigramTaggerWithSmooth(train_sentences, test_sentences)
+    total, seen, unseen =  no_pseudo_error[1]
     print("loss - Smooth :\n"
           "total:{total}  seen:{seen} unseen:{unseen}"
           .format(total=total, seen=seen, unseen=unseen))
@@ -85,13 +86,13 @@ if __name__ == '__main__':
                 test_sentences[j][i][0] = pseudo_words[test_sentences[j][i][0]]
     print("done")
 
-    print("ori is my bitch... ")
-    total, seen, unseen = ex2Sol.HMMbigramTagger(train_sentences, test_sentences)
+    with_pseudo_error = ex2Sol.optimizedTest(train_sentences,test_sentences)
+    total, seen, unseen = with_pseudo_error[0]
     print("loss - pseudo:\n"
           "total:{total}  seen:{seen} unseen:{unseen}"
           .format(total=total, seen=seen, unseen=unseen))
 
-    total, seen, unseen = ex2Sol.HMMbigramTaggerWithSmooth(train_sentences, test_sentences)
+    total, seen, unseen = with_pseudo_error[1]
     print("loss - pseudo and smooth:\n"
           "total:{total}  seen:{seen} unseen:{unseen}"
           .format(total=total, seen=seen, unseen=unseen))
