@@ -468,28 +468,26 @@ if __name__ == '__main__':
     train, test = ex2Sol.getTaggedSentences()
     obj = hmm()
     obj.train(train)
-
-    # retNormal = ex2Sol.HMMbigramTagger(train_sentences=train,test_sentences=test)
-    # print("loss - normal :{Normal}".format(Normal=retNormal))
-    # retSmooth = ex2Sol.HMMbigramTaggerWithSmooth(train_sentences=train,test_sentences=test)
-    # print("loss - Smooth :{Smooth}".format(Smooth = retSmooth))
-    # retPseudo = ex2Sol.HMMbigramTaggerWithPseudo(train_sentences=train, test_sentences=test, pseudo_words_to_tag=PSEUDO)
-    # print("loss - pseudo :{pseudo}".format(pseudo=retPseudo))
-    # retPseudoAndSmooth = ex2Sol.HMMbigramTaggerWithPseudoAndSmooth(train_sentences=train, test_sentences=test, pseudo_words_to_tag=PSEUDO)
-    # print("loss - pseudo and smooth :{pseudoAndSmooth}".format(pseudoAndSmooth=retPseudoAndSmooth))
-
-    retNormal = obj.test(test_sentences=test)
-    print("loss - normal :{Normal}".format(Normal=retNormal))
+    total, seen, unseen = obj.test(test_sentences=test)
+    print("loss - normal :\n"
+          "total:{total}  seen:{seen} unseen:{unseen}"
+          .format(total=total,seen=seen,unseen=unseen))
 
     obj.setDelta(1)
-    retSmooth = obj.test(test_sentences=test)
-    print("loss - Smooth :{Smooth}".format(Smooth = retSmooth))
-
+    total,seen,unseen = obj.test(test_sentences=test)
+    print("loss - Smooth :\n"
+          "total:{total}  seen:{seen} unseen:{unseen}"
+          .format(total=total,seen=seen,unseen=unseen))
     obj.setDelta(0)
     obj.setPseudo(PSEUDO)
-    retPseudo = obj.test(test_sentences=test)
-    print("loss - pseudo :{pseudo}".format(pseudo=retPseudo))
+    total, seen, unseen = obj.test(test_sentences=test)
+    print("loss - pseudo:\n"
+          "total:{total}  seen:{seen} unseen:{unseen}"
+          .format(total=total,seen=seen,unseen=unseen))
 
     obj.setDelta(1)
-    retPseudoAndSmooth = obj.test(test_sentences=test)
-    print("loss - pseudo and smooth :{pseudoAndSmooth}".format(pseudoAndSmooth=retPseudoAndSmooth))
+    total, seen, unseen = obj.test(test_sentences=test)
+    print("loss - pseudo and smooth:\n"
+          "total:{total}  seen:{seen} unseen:{unseen}"
+          .format(total=total,seen=seen,unseen=unseen))
+

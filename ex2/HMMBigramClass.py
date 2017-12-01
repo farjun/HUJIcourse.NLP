@@ -73,26 +73,29 @@ class HMMBigramTagger:
 
     # <editor-fold desc="Test">
     def test(self, test_sentences) -> [float, float, float]:
-        import time
-        s = time.time()
+        # import time
+        # s = time.time()
         print(len(test_sentences))
-        i = 0
+        # i = 0
         for cur_sentence in test_sentences:
-            i += 1
-            if i % 100 == 0:
-                print("Test Iter: {i}".format(i=i))
+            # i += 1
+            # if i % 100 == 0:
+            #     print("Test Iter: {i}".format(i=i))
             sentence = cur_sentence[:, 0]  # remove tags
             correct_tags = cur_sentence[:, 1]  # remove words
             tagged_sentence = self.tag(sentence=sentence)
             self.computeError(tagged_sentence, correct_tags, sentence=sentence)
-        print("Time took to tag: {time}".format(time=time.time() - s))
-        return (self.__wrong_words_counter / self.__words_counter),(self.__wrong_words_seen / self.__seen_words),(self.__wrong_words_unseen / self.__unseen_words)
+        # print("Time took to tag: {time}".format(time=time.time() - s))
+        return (self.__wrong_words_counter / self.__words_counter), \
+               (self.__wrong_words_seen / self.__seen_words), \
+               (self.__wrong_words_unseen / self.__unseen_words)
 
     def computeError(self, out_tags: np.ndarray, correct_tags: np.ndarray, sentence: np.ndarray):
         self.__words_counter += len(out_tags)
         self.__wrong_words_counter += np.sum(out_tags != correct_tags)
-        seen = np.array([w in self.__word_to_tag_count for w in sentence]).astype(np.int)
-        unseen = (-1 * seen) + 1
+        seen = np.array([w in self.__word_to_tag_count for w in sentence],dtype=np.bool)
+        unseen = -seen
+
         self.__seen_words += np.sum(seen)
         self.__wrong_words_seen += np.sum(out_tags[seen] != correct_tags[seen])
         self.__unseen_words += np.sum(unseen)

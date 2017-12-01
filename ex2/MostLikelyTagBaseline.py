@@ -15,24 +15,30 @@ class MostLikelyTagBaseline:
 
     def test(self, test_sentences):
         wrong = 0
-        right = 0
+        total = 0
+        seen = 0
+        seenWrong = 0
+        unseen = 0
+        unseenWrong = 0
         for sentence in test_sentences:
             for word, actualTag in sentence:
-                expectedTag = self._getBestTag(word)
-                if expectedTag == actualTag:
-                    right += 1
-                else:
+                expectedTag,isUnseen = self._getBestTag(word)
+                if expectedTag != actualTag:
                     wrong += 1
-        return (wrong / (right + wrong))
+                    if isUnseen:
+                        unseenWrong += 1
+                    else:
+                        seenWrong += 1
+                if isUnseen:
+                    unseen+=1
+                else:
+                    seen += 1
+                total += 1
+        return (wrong/total),(seenWrong/seen),(unseenWrong/unseen)
 
     def _getBestTag(self, word):
         if word not in self._words_tag_count:
-            return "NN"
+            return "NN", True
         tagsMap = self._words_tag_count[word]
-        bestTag = "NN"
-        bestCount = 0
-        for tag, count in tagsMap.items():
-            if count > bestCount:
-                bestTag = tag
-                bestCount = count
-        return bestTag
+        bestTag = max(tagsMap, key=tagsMap.get)
+        return bestTag , False
