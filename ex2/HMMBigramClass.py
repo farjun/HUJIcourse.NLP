@@ -6,6 +6,10 @@ class HMMBigramTagger:
     # <editor-fold desc="Init">
 
     def __init__(self, pseudo_words_to_tag=None, delta=0):
+        self.__wrong_words_unseen = 0
+        self.__unseen_words = 0
+        self.__wrong_words_seen = 0
+        self.__seen_words = 0
         self.__word_to_tag_count = {}
         self.__tag_to_next_tag_count = {}
         self.__tags_count = {}
@@ -14,7 +18,7 @@ class HMMBigramTagger:
 
         # error variables
         self.__words_counter = 0
-        self.__correct_words_counter = 0
+        self.__wrong_words_counter = 0
         self.__most_common_tag = "."
         self.__bestIndex = 0
         self.__sk = [[]]
@@ -68,7 +72,7 @@ class HMMBigramTagger:
 
 
     # <editor-fold desc="Test">
-    def test(self, test_sentences) -> float:
+    def test(self, test_sentences) -> [float, float, float]:
         import time
         s = time.time()
         print(len(test_sentences))
@@ -80,13 +84,19 @@ class HMMBigramTagger:
             sentence = cur_sentence[:, 0]  # remove tags
             correct_tags = cur_sentence[:, 1]  # remove words
             tagged_sentence = self.tag(sentence=sentence)
-            self.computeError(tagged_sentence, correct_tags)
+            self.computeError(tagged_sentence, correct_tags, sentence=sentence)
         print("Time took to tag: {time}".format(time=time.time() - s))
-        return 1 - (self.__correct_words_counter / self.__words_counter)
+        return (self.__wrong_words_counter / self.__words_counter),(self.__wrong_words_seen / self.__seen_words),(self.__wrong_words_unseen / self.__unseen_words)
 
-    def computeError(self, out_tags: np.ndarray, correct_tags: np.ndarray):
+    def computeError(self, out_tags: np.ndarray, correct_tags: np.ndarray, sentence: np.ndarray):
         self.__words_counter += len(out_tags)
-        self.__correct_words_counter += np.sum(out_tags == correct_tags)
+        self.__wrong_words_counter += np.sum(out_tags != correct_tags)
+        seen = np.array([w in self.__word_to_tag_count for w in sentence]).astype(np.int)
+        unseen = (-1 * seen) + 1
+        self.__seen_words += np.sum(seen)
+        self.__wrong_words_seen += np.sum(out_tags[seen] != correct_tags[seen])
+        self.__unseen_words += np.sum(unseen)
+        self.__wrong_words_unseen += np.sum(out_tags[unseen] != correct_tags[unseen])
 
     def tag(self, sentence: np.ndarray) -> np.ndarray:
         # set Sk (tags)
@@ -167,7 +177,7 @@ class HMMBigramTagger:
         if word in self.__pseudo_words_to_tag:
             return int(tag in self.__pseudo_words_to_tag[word])
         if word not in self.__word_to_tag_count:
-            print("didn't saw {word} in training.".format(word=word))
+            # print("didn't saw {word} in training.".format(word=word))
             return 0
         if tag not in self.__word_to_tag_count[word]:
             # print("didn't saw {word} with {tag} in training.".format(word=word, tag=tag))
@@ -181,17 +191,17 @@ class HMMBigramTagger:
             return self.__tag_to_next_tag_count[prev_tag][cur_tag] / self.__tags_count[prev_tag]
         return 0
 
+    # </editor-fold>
+
     def getWordToTagCount(self):
         return self.__word_to_tag_count
 
-    def setDelta(self,delta):
+    def setDelta(self, delta):
         self.__delta = delta
 
-    def setPseudo(self,pseudo):
-        self.__pseudo_words_to_tag =pseudo
+    def setPseudo(self, pseudo):
+        self.__pseudo_words_to_tag = pseudo
 
-
-    # </editor-fold>
     def aaa(self):
 
         pass
