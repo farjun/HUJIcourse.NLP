@@ -5,7 +5,7 @@ import operator
 class HMMBigramTagger:
     # <editor-fold desc="Init">
 
-    def __init__(self, delta=0):
+    def __init__(self, delta=0,compute_confusion_matrix = 0):
         self.__tag_to_index = {}
         self.__wrong_words_unseen = 0
         self.__unseen_words = 0
@@ -14,7 +14,10 @@ class HMMBigramTagger:
         self.__word_to_tag_count = {}
         self.__tag_to_next_tag_count = {}
         self.__tags_count = {}
+
+        #  flags
         self.__delta = delta
+        self.__compute_confusion_matrix = compute_confusion_matrix
 
         # error variables
         self.__words_counter = 0
@@ -22,6 +25,8 @@ class HMMBigramTagger:
         self.__most_common_tag = "."
         self.__bestIndex = 0
         self.__sk = [[]]
+
+        self.__confusion_matrix = []
 
     # </editor-fold>
 
@@ -75,7 +80,8 @@ class HMMBigramTagger:
 
     # <editor-fold desc="Test">
     def test(self, test_sentences) -> [float, float, float]:
-        confusion_matrix = np.zeros((len(self.__sk[1]), len(self.__sk[1])))
+        if self.__compute_confusion_matrix:
+            self.__confusion_matrix = np.zeros((len(self.__sk[1]), len(self.__sk[1])))
         i = 0
         for cur_sentence in test_sentences:
             i += 1
@@ -88,7 +94,8 @@ class HMMBigramTagger:
             # print("correct tags : ", correct_tags,"\n\n")
             # print("our tags : ",tagged_sentence)
             #  update confusion matrix
-            self.updateConfusoinMatrix(confusion_matrix, tagged_sentence, correct_tags)
+            if self.__compute_confusion_matrix:
+                self.updateConfusoinMatrix(tagged_sentence, correct_tags)
 
         return (self.__wrong_words_counter / self.__words_counter), \
                (self.__wrong_words_seen / self.__seen_words), \
@@ -204,7 +211,7 @@ class HMMBigramTagger:
     def setDelta(self, delta):
         self.__delta = delta
 
-    def updateConfusoinMatrix(self, confusion_matrix, algorithem_tags, correct_tags):
+    def updateConfusoinMatrix(self, algorithem_tags, correct_tags):
         for i in range(len(algorithem_tags)):
             algorithem_tag = algorithem_tags[i]
             correct_tag = correct_tags[i]
@@ -212,7 +219,13 @@ class HMMBigramTagger:
                 # confusion_matrix[self.__tag_to_index[correct_tags], self.__tag_to_index[algorithem_tag]] += 1
                 # t1 = self.__tag_to_index[correct_tag]
                 # t2 = self.__tag_to_index[algorithem_tag]
-                confusion_matrix[self.__tag_to_index[correct_tag]][ self.__tag_to_index[algorithem_tag]] += 1
+                self.__confusion_matrix[self.__tag_to_index[correct_tag]][ self.__tag_to_index[algorithem_tag]] += 1
+
+
+    def setFlags(self, delta=0,compute_confusion_matrix = 0):
+        self.__delta = delta
+        self.__confusion_matrix = compute_confusion_matrix
+
 
     def aaa(self):
 
