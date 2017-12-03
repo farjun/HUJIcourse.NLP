@@ -63,7 +63,11 @@ if __name__ == '__main__':
     train_sentences, test_sentences = ex2Sol.getTaggedSentences()
     pseudo_words = generatePseudo(train_sentences, test_sentences)
 
-    no_pseudo_error = ex2Sol.optimizedTest(train_sentences,test_sentences)
+    print("="*20)
+    print("================ No Pseudo ====================")
+    print("="*20)
+
+    no_pseudo_error = ex2Sol.optimizedTest(train_sentences,test_sentences,getMatrix=False)
     total, seen, unseen = no_pseudo_error[0]
     print("loss - normal :\n"
           "total:{total}  seen:{seen} unseen:{unseen}"
@@ -86,7 +90,11 @@ if __name__ == '__main__':
                 test_sentences[j][i][0] = pseudo_words[test_sentences[j][i][0]]
     print("done")
 
-    with_pseudo_error = ex2Sol.optimizedTest(train_sentences,test_sentences)
+    print("="*20)
+    print("================ Pseudo ====================")
+    print("="*20)
+
+    with_pseudo_error = ex2Sol.optimizedTest(train_sentences,test_sentences,getMatrix=True)
     total, seen, unseen = with_pseudo_error[0]
     print("loss - pseudo:\n"
           "total:{total}  seen:{seen} unseen:{unseen}"
@@ -98,4 +106,21 @@ if __name__ == '__main__':
           .format(total=total, seen=seen, unseen=unseen))
 
 
+    matrix = with_pseudo_error[2]
+    tags = with_pseudo_error[3]
+
+    print("="*20)
+    print("================ Matrix ====================")
+    print("="*20)
+
+    for i in range(matrix.shape[0]):
+        for j in range(matrix.shape[1]):
+            print(matrix[i,j],end='\t')
+        print()
+
+    print("="*20)
+    print("================ Tags ====================")
+    print("="*20)
+    for i in range(len(tags)):
+        print(tags[i])
 

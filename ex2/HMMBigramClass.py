@@ -1,11 +1,10 @@
 import numpy as np
-import operator
 
 
 class HMMBigramTagger:
     # <editor-fold desc="Init">
 
-    def __init__(self, delta=0,compute_confusion_matrix = 0):
+    def __init__(self, delta=0, compute_confusion_matrix=0):
         self.__tag_to_index = {}
         self.__wrong_words_unseen = 0
         self.__unseen_words = 0
@@ -77,7 +76,6 @@ class HMMBigramTagger:
 
     # </editor-fold>
 
-
     # <editor-fold desc="Test">
     def test(self, test_sentences) -> [float, float, float]:
         if self.__compute_confusion_matrix:
@@ -86,13 +84,11 @@ class HMMBigramTagger:
         for cur_sentence in test_sentences:
             i += 1
             if i % 100 == 0:
-                print(i)
+                print("test iter count: {i}".format(i=i))
             sentence = cur_sentence[:, 0]  # remove tags
             correct_tags = cur_sentence[:, 1]  # remove words
             tagged_sentence = self.tag(sentence=sentence)
             self.computeError(tagged_sentence, correct_tags, sentence=sentence)
-            # print("correct tags : ", correct_tags,"\n\n")
-            # print("our tags : ",tagged_sentence)
             #  update confusion matrix
             if self.__compute_confusion_matrix:
                 self.updateConfusoinMatrix(tagged_sentence, correct_tags)
@@ -101,7 +97,7 @@ class HMMBigramTagger:
                (self.__wrong_words_seen / self.__seen_words), \
                (self.__wrong_words_unseen / self.__unseen_words)
 
-    def computeError(self, out_tags: np.ndarray, correct_tags: np.ndarray, sentence: np.ndarray):
+    def computeError(self, out_tags: np.ndarray, correct_tags: np.ndarray, sentence: np.ndarray) -> None:
         self.__words_counter += len(out_tags)
         self.__wrong_words_counter += np.sum(out_tags != correct_tags)
         seen = np.array([w in self.__word_to_tag_count for w in sentence], dtype=np.bool)
@@ -159,7 +155,6 @@ class HMMBigramTagger:
 
     def findMaxProbabilityFromLastRow(self, probability_row, word, prev_tags, cur_tag) -> [float, str]:
         emission = self.getEmission(cur_tag, word)
-
         if emission == 0:  # unknown word
             bestProbability = 0
             if not len(prev_tags) == 1:
@@ -171,11 +166,9 @@ class HMMBigramTagger:
             temp = np.array([self.getQProbability(cur_tag, prev_tag) for prev_tag in prev_tags],
                             dtype=np.float64)
             temp = emission * temp * probability_row
-            # print("for words: ", word)
-            # print("prob array: ",temp)
             bestProbability = np.max(temp)
             if bestProbability != 0:
-                bestPrevTagIndex = (np.nonzero(temp == bestProbability))[0][0]
+                bestPrevTagIndex = np.argmax(temp,axis=0)
             else:
                 bestPrevTagIndex = self.__bestIndex
         else:  # first word
@@ -189,24 +182,29 @@ class HMMBigramTagger:
 
     def getEmission(self, tag, word) -> float:
         if word not in self.__word_to_tag_count:
-            # print("didn't saw {word} in training.".format(word=word))
-            return 0
+            return (1*self.__delta)/len(self.__word_to_tag_count) # Solve zero division
         if tag not in self.__word_to_tag_count[word]:
-            # print("didn't saw {word} with {tag} in training.".format(word=word, tag=tag))
-            return 0
+            return (1*self.__delta)/len(self.__word_to_tag_count) # Solve zero division
         appearance = self.__word_to_tag_count[word][tag] + self.__delta
         total_tag = self.__tags_count[tag] + len(self.__word_to_tag_count) * self.__delta
         return appearance / total_tag
 
-    def getQProbability(self, cur_tag, prev_tag):
+    def getQProbability(self, cur_tag, prev_tag) -> float:
         if prev_tag in self.__tag_to_next_tag_count and cur_tag in self.__tag_to_next_tag_count[prev_tag]:
             return self.__tag_to_next_tag_count[prev_tag][cur_tag] / self.__tags_count[prev_tag]
         return 0
 
     # </editor-fold>
 
+    # <editor-fold desc="Utils">
     def getWordToTagCount(self):
         return self.__word_to_tag_count
+
+    def getConfusionMatrix(self):
+        return self.__confusion_matrix
+
+    def getTags(self):
+        return self.__sk[1]
 
     def setDelta(self, delta):
         self.__delta = delta
@@ -216,17 +214,12 @@ class HMMBigramTagger:
             algorithem_tag = algorithem_tags[i]
             correct_tag = correct_tags[i]
             if correct_tag in self.__tag_to_index:  # check if in a tags MAP
-                # confusion_matrix[self.__tag_to_index[correct_tags], self.__tag_to_index[algorithem_tag]] += 1
-                # t1 = self.__tag_to_index[correct_tag]
-                # t2 = self.__tag_to_index[algorithem_tag]
-                self.__confusion_matrix[self.__tag_to_index[correct_tag]][ self.__tag_to_index[algorithem_tag]] += 1
+                self.__confusion_matrix[self.__tag_to_index[correct_tag]][self.__tag_to_index[algorithem_tag]] += 1
 
-
-    def setFlags(self, delta=0,compute_confusion_matrix = 0):
+    def setFlags(self, delta=0, compute_confusion_matrix=0):
         self.__delta = delta
         self.__confusion_matrix = compute_confusion_matrix
+    # </editor-fold>
 
-
-    def aaa(self):
-
+    def placeHolder(self):
         pass
