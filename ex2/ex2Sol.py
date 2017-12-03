@@ -1,12 +1,14 @@
 import nltk
 import numpy as np
-from ex2.HMMBigramClass import HMMBigramTagger as HMM
-from ex2.MostLikelyTagBaseline import MostLikelyTagBaseline as MLT
+from HMMBigramClass import HMMBigramTagger as HMM
+# from ex2.HMMBigramClass import HMMBigramTagger as HMM
+from MostLikelyTagBaseline import MostLikelyTagBaseline as MLT
+# from ex2.MostLikelyTagBaseline import MostLikelyTagBaseline as MLT
 
 
 # <editor-fold desc="Q2.a">
 def getTaggedSentences() -> [np.ndarray, np.ndarray]:
-    tagged_sents = np.array([np.array(sentence, dtype=np.str) for sentence in nltk.corpus.brown.tagged_sents()])
+    tagged_sents = np.array([np.array(sentence, dtype=np.str) for sentence in nltk.corpus.brown.tagged_sents(categories="news")])
     corpus_size = tagged_sents.size
     # splits the data into 2 sets - train and test set
     train_sentences, test_sentences = np.split(tagged_sents, [round(corpus_size * 0.9)])

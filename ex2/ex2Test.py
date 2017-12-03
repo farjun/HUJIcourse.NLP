@@ -1,5 +1,7 @@
-import ex2.ex2Sol as ex2Sol
-from ex2.HMMBigramClass import HMMBigramTagger as hmm
+import ex2Sol as ex2Sol
+# import ex2.ex2Sol as ex2Sol
+from HMMBigramClass import HMMBigramTagger as hmm
+# from ex2.HMMBigramClass import HMMBigramTagger as hmm
 
 PSEUDO = {}
 
