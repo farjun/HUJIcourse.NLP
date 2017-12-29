@@ -27,31 +27,33 @@ class MSTParser:
                     index += 1
         return index
 
+
+    def get_weight(self, word1, word2):
+        pass
+
+    def get_full_graph_from_dict(self, sentence_dict):
+        total_indexes = len(sentence_dict)
+        arcs = []
+        for fromIndex in range(total_indexes):
+            word1 = sentence_dict[fromIndex]['word']
+            for toIndex in range(total_indexes):
+                if fromIndex == toIndex:
+                    continue
+                word2 = sentence_dict[toIndex]['word']
+                arcs.append(MST.Arc(fromIndex,self.get_weight(word1,word2),toIndex))
+
+        return arcs
+
     # </editor-fold>
 
 
 
     def train(self, train_sentences):
-        for sentence in train_sentences:
-            self.sentences_words_dic[sentence] = dict()
+        for i in range(train_sentences.size):
+            sentence = train_sentences[i].nodes
+            full_graph = self.get_full_graph_from_dict(sentence)
+            MSTAlgorithem.min_spanning_arborescence(full_graph,0)
 
-            for i in range(len(sentence) - 1):
-                self.sentences_words_dic[sentence][(sentence[i], sentence[i + 1])] = 1
-                # todo put tags here too
-                # todo think of how to init the weights vector better
-                # for now we save the vocabulary
-                self.vocabulary_dic[sentence[i]] = 1
-            self.vocabulary_dic[sentence[len(sentence)]] = 1
-
-    def generateArcs(self, sentence)->[MSTAlgorithem.Arc]:
-        totalIndexes = len(sentence)
-        arcs = []
-        for fromIndex in range(totalIndexes):
-            for toIndex in range(totalIndexes):
-                if toIndex in sentence[fromIndex]['deps']:
-                    arcs.append(MSTAlgorithem.Arc(fromIndex,1,toIndex))
-                else:
-                    arcs.append(MSTAlgorithem.Arc(fromIndex,0,toIndex))
 
     # <editor-fold desc="Getters & Setters">
     def get_feature(self, sentence, word1, word2):
@@ -60,8 +62,7 @@ class MSTParser:
                 return 1
         return 0
 
-    def get_weight(self, sentence, word1, word2):
-        pass
+
 
     def getWordFeatureIndex(self, word) -> int:
         return self.vocabulary_dic[word]
