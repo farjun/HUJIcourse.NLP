@@ -12,15 +12,19 @@ class MSTParser:
 
 
     def generateVocabulery(self,train:np.ndarray,test:np.ndarray):
-        index = 0
-        for i in range(train.size):
-            sentence = train[i]
+        index = self.addWordsToVocabulery(0, train)
+        self.addWordsToVocabulery(index, test)
+
+    def addWordsToVocabulery(self, index, sentences):
+        for i in range(sentences.size):
+            sentence = sentences[i]
             nodes = sentence.nodes
-            s = ''
-            for j in range(1,len(nodes)):
-                s += nodes[j]['word'] + ' '
-            t = type(sentence)
-        pass
+            for j in range(1, len(nodes)):
+                word = nodes[j]['word']
+                if word not in self.vocabulery_dic:
+                    self.vocabulery_dic[word] = index
+                    index += 1
+        return index
 
     def train(self, train_sentences):
         for sentence in train_sentences:
