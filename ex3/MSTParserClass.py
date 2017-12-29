@@ -4,7 +4,7 @@ import nltk
 
 
 class MSTParser:
-    def __init__(self,distance_flag = False):
+    def __init__(self, distance_flag=False):
         # conputes which tuples will have the value 1 in the sentence
         # for example - sentences_words_dic[sentence1][(word1,word2)] = 1 iff word1 word2 were in sentence1
         self.sentences_words_dic = dict()
@@ -23,10 +23,8 @@ class MSTParser:
         self.total_edges_checked = 0
         self.total_edges_right = 0
 
-        #flags
+        # flags
         self.distance_flag = distance_flag
-
-
 
     # <editor-fold desc="Pre-Processing">
     def generateVocabulery(self, train: np.ndarray, test: np.ndarray) -> None:
@@ -69,28 +67,24 @@ class MSTParser:
 
     def train(self, train_sentences):
 
-
         for i in range(train_sentences.size):
             cur_sentence_tree = train_sentences[i]
             full_graph = self.get_full_graph_from_dict(cur_sentence_tree.nodes)
             mst_graph = MSTAlgorithem.min_spanning_arborescence(full_graph, 0)
             self.set_new_weights_by_trees(mst_graph, cur_sentence_tree.nodes)
-            if i%100 == 0:
-                print("number of iterations so far : ",i,"/",train_sentences.size)
+            if i % 100 == 0:
+                print("number of iterations so far : ", i, "/", train_sentences.size)
 
-        for i in range(train_sentences.size,0):
+        for i in range(train_sentences.size, 0):
             cur_sentence_tree = train_sentences[i]
             full_graph = self.get_full_graph_from_dict(cur_sentence_tree.nodes)
-            mst_graph = MSTAlgorithem.min_spanning_arborescence(full_graph,0)
+            mst_graph = MSTAlgorithem.min_spanning_arborescence(full_graph, 0)
             self.set_new_weights_by_trees(mst_graph, cur_sentence_tree.nodes)
             if i % 100 == 0:
-                print("number of iterations so far : ",i,"/",train_sentences.size)
+                print("number of iterations so far : ", i, "/", train_sentences.size)
 
         # after the training we normelize the data
         self.normelize_total_weight_dict(train_sentences.size)
-
-
-
 
     def get_full_graph_from_dict(self, sentence_dict):
         total_indexes = len(sentence_dict)
@@ -105,7 +99,6 @@ class MSTParser:
                     MSTAlgorithem.Arc(fromIndex, -1 * self.getWordsWeight(word1['word'], word2['word']), toIndex))
         return arcs
 
-
     def set_new_weights_by_trees(self, our_tree, real_tree):
         # todo check what to do with the root!
         # add arcs of real tree by iterating the nodes (hard)
@@ -119,14 +112,13 @@ class MSTParser:
                 self.setTagsWeight(cur_word_dict['tag'], real_tree[deps]['tag'], 1)
 
         # add arcs of our tree by iterating the arcs (easy)
-        for i in range(1,len(our_tree)+1):
+        for i in range(1, len(our_tree) + 1):
             from_word_index = our_tree[i].tail
             to_word_index = our_tree[i].head
             self.setWordsWeight(real_tree[from_word_index]['word'], real_tree[to_word_index]['word'], -1)
             self.setTagsWeight(real_tree[from_word_index]['tag'], real_tree[to_word_index]['tag'], -1)
 
         self.update_total_weight_dict()
-
 
     def update_total_weight_dict(self):
         for word1 in self.word_weight.keys():
@@ -137,14 +129,14 @@ class MSTParser:
             for tag2 in self.tag_weight[tag1].keys():
                 self.total_tag_weight[tag1][tag2] += self.tag_weight[tag1][tag2]
 
-    def normelize_total_weight_dict(self,N):
+    def normelize_total_weight_dict(self, N):
         for word1 in self.word_weight.keys():
             for word2 in self.word_weight[word1].keys():
-                self.total_word_weight[word1][word2] /= 2*N
+                self.total_word_weight[word1][word2] /= 2 * N
 
         for tag1 in self.tag_weight.keys():
             for tag2 in self.tag_weight[tag1].keys():
-                self.total_tag_weight[tag1][tag2] /= 2*N
+                self.total_tag_weight[tag1][tag2] /= 2 * N
 
     def getWordBigram(self, sentence, fromNode, toNode):
         return 1 if toNode['address'] in fromNode['deps'] else 0
@@ -155,16 +147,17 @@ class MSTParser:
 
     def distanceFeature(self, sentence, fromNode, toNode):
         deps = set(fromNode['deps'])
-        distances = [0]*3
+        distances = [0] * 3
         for i in range(3):
             if toNode['address'] in deps:
-                for j in range(i,3):
+                for j in range(i, 3):
                     distances[j] = 1
                     return distances
             newDeps = set()
             for address in deps:
                 newDeps |= set(sentence[address]['deps'])
         return distances
+
     # </editor-fold>
 
 
