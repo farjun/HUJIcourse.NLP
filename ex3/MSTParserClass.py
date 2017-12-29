@@ -13,6 +13,7 @@ class MSTParser:
     def train(self, train_sentences):
         for sentence in train_sentences:
             self.sentences_words_dic[sentence] = dict()
+
             for i in range(len(sentence) - 1):
                 self.sentences_words_dic[sentence][(sentence[i], sentence[i + 1])] = 1
                 # todo put tags here too

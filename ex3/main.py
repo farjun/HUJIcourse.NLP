@@ -14,4 +14,4 @@ def getTaggedSentences() -> [np.ndarray, np.ndarray]:
     train_sentences, test_sentences = np.split(tagged_sents, [round(corpus_size * 0.9)])
     return train_sentences, test_sentences
 
-print(dependency_treebank.parsed_sents()[0].nodes.items())
+print(dependency_treebank.parsed_sents()[0].nodes[8])
