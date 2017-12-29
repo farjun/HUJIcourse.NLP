@@ -14,6 +14,12 @@ class MSTParser:
         self.vocabulary_dic = dict()
         self.tag_dic = {'ROOT': 0}
 
+        # error vars
+        self.total_edges_checked = 0
+        self.total_edges_right = 0
+
+
+
     # <editor-fold desc="Pre-Processing">
     def generateVocabulery(self, train: np.ndarray, test: np.ndarray) -> None:
         wordIndex, tagIndex = self.addWords(len(self.vocabulary_dic), len(self.tag_dic), train)
@@ -38,6 +44,19 @@ class MSTParser:
 
     # </editor-fold>
 
+    def test(self,test_sentences):
+        for i in range(test_sentences.size):
+            cur_sentence_tree = test_sentences[i]
+            full_graph = self.get_full_graph_from_dict(cur_sentence_tree.nodes)
+            mst_graph = MSTAlgorithem.min_spanning_arborescence(full_graph, 0)
+            self.calculate_error(mst_graph, cur_sentence_tree.nodes)
+
+    def calculate_error(self, our_tree, real_tree):
+        for i in range(len(real_tree)):
+            cur_word_dict = real_tree[i]
+            for deps in cur_word_dict['deps']['']:
+                self.total_edges_checked += 1
+
 
 
     def train(self, train_sentences):
@@ -45,7 +64,7 @@ class MSTParser:
             cur_sentence_tree = train_sentences[i]
             full_graph = self.get_full_graph_from_dict(cur_sentence_tree.nodes)
             mst_graph = MSTAlgorithem.min_spanning_arborescence(full_graph,0)
-            self.set_new_weights_by_trees(mst_graph, cur_sentence_tree.nodes)
+            self.calculate_error(mst_graph, cur_sentence_tree.nodes)
 
     def get_full_graph_from_dict(self, sentence_dict):
         total_indexes = len(sentence_dict)
@@ -56,7 +75,7 @@ class MSTParser:
                 if fromIndex == toIndex:
                     continue
                 word2 = sentence_dict[toIndex]
-                arcs.append(MSTAlgorithem.Arc(fromIndex, self.getWordBigram(sentence_dict, word1, word2), toIndex))
+                arcs.append(MSTAlgorithem.Arc(fromIndex, self.getWordsWeight(word1['word'], word2['word']), toIndex))
         return arcs
 
     def set_new_weights_by_trees(self, our_tree, real_tree):
@@ -70,12 +89,15 @@ class MSTParser:
             for deps in cur_word_dict['deps']['']:
                 # adds 1 to the weight 'vector' of cur_word_dict['word'] = current word , real_tree[deps]['word'] = cur neightbor
                 self.setWordsWeight(cur_word_dict['word'],real_tree[deps]['word'],1)
+                self.setTagsWeight(cur_word_dict['tag'], real_tree[deps]['tag'], 1)
 
         # add arcs of our tree by iterating the arcs (easy)
         for i in range(1,len(our_tree)):
             from_word_index = our_tree[i].tail
             to_word_index = our_tree[i].head
-            self.setWordsWeight(real_tree[from_word_index]['word'],real_tree[to_word_index]['word'],1)
+            self.setWordsWeight(real_tree[from_word_index]['word'],real_tree[to_word_index]['word'],-1)
+            self.setTagsWeight(real_tree[from_word_index]['tag'], real_tree[to_word_index]['tag'], -1)
+
 
 
 
@@ -130,6 +152,9 @@ class MSTParser:
     def setTagsWeight(self, t1, t2, weight):
         if t1 not in self.tag_weight:
             self.tag_weight[t1] = dict()
-        self.tag_weight[t1][t2] = weight
+        if t2 not in self.tag_weight[t1]:
+            self.tag_weight[t1][t2] = weight
+        else:
+            self.tag_weight[t1][t2] += weight
 
     # </editor-fold>
