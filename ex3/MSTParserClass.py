@@ -1,4 +1,5 @@
 import numpy as np
+import ex3.MSTAlgorithem as MSTAlgorithem
 
 
 class MSTParser:
@@ -15,7 +16,6 @@ class MSTParser:
         index = self.addWordsToVocabulary(0, train)
         self.addWordsToVocabulary(index, test)
 
-
     def addWordsToVocabulary(self, index, sentences):
         for i in range(sentences.size):
             sentence = sentences[i]
@@ -26,7 +26,10 @@ class MSTParser:
                     self.vocabulary_dic[word] = index
                     index += 1
         return index
+
     # </editor-fold>
+
+
 
     def train(self, train_sentences):
         for sentence in train_sentences:
@@ -40,7 +43,15 @@ class MSTParser:
                 self.vocabulary_dic[sentence[i]] = 1
             self.vocabulary_dic[sentence[len(sentence)]] = 1
 
-
+    def generateArcs(self, sentence)->[MSTAlgorithem.Arc]:
+        totalIndexes = len(sentence)
+        arcs = []
+        for fromIndex in range(totalIndexes):
+            for toIndex in range(totalIndexes):
+                if toIndex in sentence[fromIndex]['deps']:
+                    arcs.append(MSTAlgorithem.Arc(fromIndex,1,toIndex))
+                else:
+                    arcs.append(MSTAlgorithem.Arc(fromIndex,0,toIndex))
 
     # <editor-fold desc="Getters & Setters">
     def get_feature(self, sentence, word1, word2):
@@ -52,12 +63,12 @@ class MSTParser:
     def get_weight(self, sentence, word1, word2):
         pass
 
-
     def getWordFeatureIndex(self, word) -> int:
         return self.vocabulary_dic[word]
 
     def getWordsCount(self) -> int:
         return len(self.vocabulary_dic)
+
     # </editor-fold>
 
 

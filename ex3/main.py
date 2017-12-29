@@ -2,7 +2,7 @@ import nltk
 import numpy as np
 from nltk.corpus import dependency_treebank
 
-import ex3.MSTParserClass
+import ex3.MSTParserClass as MSTParserClass
 
 
 def getTaggedSentences() -> [np.ndarray, np.ndarray]:
@@ -15,5 +15,5 @@ def getTaggedSentences() -> [np.ndarray, np.ndarray]:
 
 if __name__ == '__main__':
     train_sentences, test_sentences = getTaggedSentences()
-    parser = ex3.MSTParserClass.MSTParser()
+    parser = MSTParserClass.MSTParser()
     parser.generateVocabulery(train_sentences,test_sentences)
