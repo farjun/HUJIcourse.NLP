@@ -50,21 +50,23 @@ class MSTParser:
             full_graph = self.get_full_graph_from_dict(cur_sentence_tree.nodes)
             mst_graph = MSTAlgorithem.min_spanning_arborescence(full_graph, 0)
             self.calculate_error(mst_graph, cur_sentence_tree.nodes)
+        return self.total_edges_right / self.total_edges_checked
 
     def calculate_error(self, our_tree, real_tree):
+        our_tree_dict = MSTAlgorithem.turn_output_to_dict(our_tree)
         for i in range(len(real_tree)):
             cur_word_dict = real_tree[i]
             for deps in cur_word_dict['deps']['']:
+                if (i,deps) in  our_tree_dict:
+                    self.total_edges_right += 1
                 self.total_edges_checked += 1
-
-
 
     def train(self, train_sentences):
         for i in range(train_sentences.size):
             cur_sentence_tree = train_sentences[i]
             full_graph = self.get_full_graph_from_dict(cur_sentence_tree.nodes)
             mst_graph = MSTAlgorithem.min_spanning_arborescence(full_graph,0)
-            self.calculate_error(mst_graph, cur_sentence_tree.nodes)
+            self.set_new_weights_by_trees(mst_graph, cur_sentence_tree.nodes)
 
     def get_full_graph_from_dict(self, sentence_dict):
         total_indexes = len(sentence_dict)
@@ -75,7 +77,7 @@ class MSTParser:
                 if fromIndex == toIndex:
                     continue
                 word2 = sentence_dict[toIndex]
-                arcs.append(MSTAlgorithem.Arc(fromIndex, self.getWordsWeight(word1['word'], word2['word']), toIndex))
+                arcs.append(MSTAlgorithem.Arc(fromIndex, -1*self.getWordsWeight(word1['word'], word2['word']), toIndex))
         return arcs
 
     def set_new_weights_by_trees(self, our_tree, real_tree):

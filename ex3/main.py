@@ -18,3 +18,4 @@ if __name__ == '__main__':
     parser = MSTParserClass.MSTParser()
     parser.generateVocabulery(train_sentences,test_sentences)
     parser.train(train_sentences)
+    print(parser.test(test_sentences))
