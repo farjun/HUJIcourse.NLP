@@ -17,3 +17,4 @@ if __name__ == '__main__':
     train_sentences, test_sentences = getTaggedSentences()
     parser = MSTParserClass.MSTParser()
     parser.generateVocabulery(train_sentences,test_sentences)
+    parser.train(train_sentences)

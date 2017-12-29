@@ -33,6 +33,23 @@ class MSTParser:
                     tagIndex += 1
         return wordIndex, tagIndex
 
+
+    def get_weight(self, word1, word2):
+        pass
+
+    def get_full_graph_from_dict(self, sentence_dict):
+        total_indexes = len(sentence_dict)
+        arcs = []
+        for fromIndex in range(total_indexes):
+            word1 = sentence_dict[fromIndex]['word']
+            for toIndex in range(total_indexes):
+                if fromIndex == toIndex:
+                    continue
+                word2 = sentence_dict[toIndex]['word']
+                arcs.append(MSTAlgorithem.Arc(fromIndex,self.get_weight(word1,word2),toIndex))
+
+        return arcs
+
     # </editor-fold>
 
 
@@ -66,8 +83,7 @@ class MSTParser:
                 return 1
         return 0
 
-    def get_weight(self, sentence, word1, word2):
-        pass
+
 
     def getWordFeatureIndex(self, word) -> int:
         return self.vocabulary_dic[word]
