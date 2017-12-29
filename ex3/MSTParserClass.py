@@ -33,7 +33,6 @@ class MSTParser:
                     tagIndex += 1
         return wordIndex, tagIndex
 
-
     def get_weight(self, word1, word2):
         pass
 
@@ -46,7 +45,7 @@ class MSTParser:
                 if fromIndex == toIndex:
                     continue
                 word2 = sentence_dict[toIndex]['word']
-                arcs.append(MSTAlgorithem.Arc(fromIndex,self.get_weight(word1,word2),toIndex))
+                arcs.append(MSTAlgorithem.Arc(fromIndex, self.get_weight(word1, word2), toIndex))
 
         return arcs
 
@@ -67,14 +66,11 @@ class MSTParser:
                 else:
                     arcs.append(MSTAlgorithem.Arc(fromIndex, 0, toIndex))
 
-
     def getWordBigram(self, sentence, fromNode, toNode):
         return 1 if toNode['address'] in fromNode['deps'] else 0
 
     def getPOSBigram(self, sentence, fromNode, toNode):
         return 1 if toNode['address'] in fromNode['deps'] else 0
-
-
 
     # <editor-fold desc="Getters & Setters">
     def get_feature(self, sentence, word1, word2):
@@ -82,8 +78,6 @@ class MSTParser:
             if (word1, word2) in self.sentences_words_dic[sentence]:
                 return 1
         return 0
-
-
 
     def getWordFeatureIndex(self, word) -> int:
         return self.vocabulary_dic[word]
