@@ -7,7 +7,8 @@ class MSTParser:
         # conputes which tuples will have the value 1 in the sentence
         # for example - sentences_words_dic[sentence1][(word1,word2)] = 1 iff word1 word2 were in sentence1
         self.sentences_words_dic = dict()
-        self.weights = np.zeros(1)
+        self.word_weight = dict()
+        self.tag_weight = dict()
 
         # maps from a value to the feature index.
         self.vocabulary_dic = dict()
@@ -85,6 +86,33 @@ class MSTParser:
 
     def getWordsCount(self) -> int:
         return len(self.vocabulary_dic)
+
+    def getTagsCount(self):
+        return len(self.tag_dic)
+
+    def getWordsWeight(self, w1, w2):
+        if w1 not in self.word_weight:
+            self.word_weight[w1] = dict()
+        if w2 not in self.word_weight[w1]:
+            self.word_weight[w1][w2] = 0
+        return self.word_weight[w1][w2]
+
+    def setWordsWeight(self, w1, w2, weight):
+        if w1 not in self.word_weight:
+            self.word_weight[w1] = dict()
+        self.word_weight[w1][w2] = weight
+
+    def getTagsWeight(self, t1, t2):
+        if t1 not in self.tag_weight:
+            self.tag_weight[t1] = dict()
+        if t2 not in self.tag_weight[t1]:
+            self.tag_weight[t1][t2] = 0
+        return self.tag_weight[t1][t2]
+
+    def setTagsWeight(self, t1, t2, weight):
+        if t1 not in self.tag_weight:
+            self.tag_weight[t1] = dict()
+        self.tag_weight[t1][t2] = weight
 
     # </editor-fold>
 
