@@ -1,6 +1,6 @@
 import numpy as np
 import ex3.MSTAlgorithem as MSTAlgorithem
-
+import nltk
 
 class MSTParser:
     def __init__(self):
@@ -34,45 +34,59 @@ class MSTParser:
                     tagIndex += 1
         return wordIndex, tagIndex
 
-    def get_weight(self, word1, word2):
-        pass
 
-    def get_full_graph_from_dict(self, sentence_dict):
-        total_indexes = len(sentence_dict)
-        arcs = []
-        for fromIndex in range(total_indexes):
-            word1 = sentence_dict[fromIndex]['word']
-            for toIndex in range(total_indexes):
-                if fromIndex == toIndex:
-                    continue
-                word2 = sentence_dict[toIndex]['word']
-                arcs.append(MSTAlgorithem.Arc(fromIndex, self.get_weight(word1, word2), toIndex))
-
-        return arcs
 
     # </editor-fold>
 
 
 
     def train(self, train_sentences):
-        pass
+        for i in range(train_sentences.size):
+            cur_sentence_tree = train_sentences[i]
+            full_graph = self.get_full_graph_from_dict(cur_sentence_tree.nodes)
+            mst_graph = MSTAlgorithem.min_spanning_arborescence(full_graph,0)
+            self.set_new_weights_by_trees(mst_graph, cur_sentence_tree.nodes)
 
-    def generateArcs(self, sentence) -> [MSTAlgorithem.Arc]:
-        totalIndexes = len(sentence)
+    def get_full_graph_from_dict(self, sentence_dict):
+        total_indexes = len(sentence_dict)
         arcs = []
-        for fromIndex in range(totalIndexes):
-            for toIndex in range(totalIndexes):
-                if toIndex in sentence[fromIndex]['deps']:
-                    arcs.append(MSTAlgorithem.Arc(fromIndex, 1, toIndex))
-                else:
-                    arcs.append(MSTAlgorithem.Arc(fromIndex, 0, toIndex))
+        for fromIndex in range(total_indexes):
+            word1 = sentence_dict[fromIndex]
+            for toIndex in range(total_indexes):
+                if fromIndex == toIndex:
+                    continue
+                word2 = sentence_dict[toIndex]
+                arcs.append(MSTAlgorithem.Arc(fromIndex, self.getWordBigram(sentence_dict, word1, word2), toIndex))
+        return arcs
+
+    def set_new_weights_by_trees(self, our_tree, real_tree):
+        # todo check if the numbers here are compatible with our numbers
+        # todo check what to do with the root!
+        # add arcs of real tree by iterating the nodes (hard)
+        for i in range(len(real_tree)):
+            cur_word_dict = real_tree[i]
+            # adds all the edges of cur_word_dict by iterating on cur_word_dict['deps'][''] (which is for
+            # some magical reason the nodes neighbors)
+            for deps in cur_word_dict['deps']['']:
+                # adds 1 to the weight 'vector' of cur_word_dict['word'] = current word , real_tree[deps]['word'] = cur neightbor
+                self.setWordsWeight(cur_word_dict['word'],real_tree[deps]['word'],1)
+
+        # add arcs of our tree by iterating the arcs (easy)
+        for i in range(1,len(our_tree)):
+            from_word_index = our_tree[i].tail
+            to_word_index = our_tree[i].head
+            self.setWordsWeight(real_tree[from_word_index]['word'],real_tree[to_word_index]['word'],1)
+
+
 
     def getWordBigram(self, sentence, fromNode, toNode):
         return 1 if toNode['address'] in fromNode['deps'] else 0
 
+
     def getPOSBigram(self, sentence, fromNode, toNode):
         tags = set([sentence[i]['tag'] for i in fromNode['deps']])
         return 1 if toNode['tag'] in tags else 0
+
 
     # <editor-fold desc="Getters & Setters">
     def get_feature(self, sentence, word1, word2):
@@ -100,7 +114,11 @@ class MSTParser:
     def setWordsWeight(self, w1, w2, weight):
         if w1 not in self.word_weight:
             self.word_weight[w1] = dict()
-        self.word_weight[w1][w2] = weight
+
+        if w2 not in self.word_weight[w1]:
+            self.word_weight[w1][w2] = weight
+        else:
+            self.word_weight[w1][w2] += weight
 
     def getTagsWeight(self, t1, t2):
         if t1 not in self.tag_weight:
@@ -115,9 +133,3 @@ class MSTParser:
         self.tag_weight[t1][t2] = weight
 
     # </editor-fold>
-
-
-
-
-    def dummyFunction(self):
-        pass
