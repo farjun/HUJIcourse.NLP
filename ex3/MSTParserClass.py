@@ -3,7 +3,7 @@ import ex3.MSTAlgorithem as MSTAlgorithem
 import nltk
 
 class MSTParser:
-    def __init__(self):
+    def __init__(self,distance_flag = False):
         # conputes which tuples will have the value 1 in the sentence
         # for example - sentences_words_dic[sentence1][(word1,word2)] = 1 iff word1 word2 were in sentence1
         self.sentences_words_dic = dict()
@@ -17,6 +17,9 @@ class MSTParser:
         # error vars
         self.total_edges_checked = 0
         self.total_edges_right = 0
+
+        #flags
+        self.distance_flag = distance_flag
 
 
 
