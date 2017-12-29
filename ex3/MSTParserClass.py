@@ -70,7 +70,8 @@ class MSTParser:
         return 1 if toNode['address'] in fromNode['deps'] else 0
 
     def getPOSBigram(self, sentence, fromNode, toNode):
-        return 1 if toNode['address'] in fromNode['deps'] else 0
+        tags = set([sentence[i]['tag'] for i in fromNode['deps']])
+        return 1 if toNode['tag'] in tags else 0
 
     # <editor-fold desc="Getters & Setters">
     def get_feature(self, sentence, word1, word2):
