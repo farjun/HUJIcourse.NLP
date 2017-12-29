@@ -2,6 +2,7 @@ import numpy as np
 import ex3.MSTAlgorithem as MSTAlgorithem
 import nltk
 
+
 class MSTParser:
     def __init__(self):
         # conputes which tuples will have the value 1 in the sentence
@@ -17,8 +18,6 @@ class MSTParser:
         # error vars
         self.total_edges_checked = 0
         self.total_edges_right = 0
-
-
 
     # <editor-fold desc="Pre-Processing">
     def generateVocabulery(self, train: np.ndarray, test: np.ndarray) -> None:
@@ -40,11 +39,9 @@ class MSTParser:
                     tagIndex += 1
         return wordIndex, tagIndex
 
-
-
     # </editor-fold>
 
-    def test(self,test_sentences):
+    def test(self, test_sentences):
         for i in range(test_sentences.size):
             cur_sentence_tree = test_sentences[i]
             full_graph = self.get_full_graph_from_dict(cur_sentence_tree.nodes)
@@ -57,7 +54,7 @@ class MSTParser:
         for i in range(len(real_tree)):
             cur_word_dict = real_tree[i]
             for deps in cur_word_dict['deps']['']:
-                if (i,deps) in  our_tree_dict:
+                if (i, deps) in our_tree_dict:
                     self.total_edges_right += 1
                 self.total_edges_checked += 1
 
@@ -65,7 +62,7 @@ class MSTParser:
         for i in range(train_sentences.size):
             cur_sentence_tree = train_sentences[i]
             full_graph = self.get_full_graph_from_dict(cur_sentence_tree.nodes)
-            mst_graph = MSTAlgorithem.min_spanning_arborescence(full_graph,0)
+            mst_graph = MSTAlgorithem.min_spanning_arborescence(full_graph, 0)
             self.set_new_weights_by_trees(mst_graph, cur_sentence_tree.nodes)
 
     def get_full_graph_from_dict(self, sentence_dict):
@@ -77,7 +74,8 @@ class MSTParser:
                 if fromIndex == toIndex:
                     continue
                 word2 = sentence_dict[toIndex]
-                arcs.append(MSTAlgorithem.Arc(fromIndex, -1*self.getWordsWeight(word1['word'], word2['word']), toIndex))
+                arcs.append(
+                    MSTAlgorithem.Arc(fromIndex, -1 * self.getWordsWeight(word1['word'], word2['word']), toIndex))
         return arcs
 
     def set_new_weights_by_trees(self, our_tree, real_tree):
@@ -90,26 +88,37 @@ class MSTParser:
             # some magical reason the nodes neighbors)
             for deps in cur_word_dict['deps']['']:
                 # adds 1 to the weight 'vector' of cur_word_dict['word'] = current word , real_tree[deps]['word'] = cur neightbor
-                self.setWordsWeight(cur_word_dict['word'],real_tree[deps]['word'],1)
+                self.setWordsWeight(cur_word_dict['word'], real_tree[deps]['word'], 1)
                 self.setTagsWeight(cur_word_dict['tag'], real_tree[deps]['tag'], 1)
 
         # add arcs of our tree by iterating the arcs (easy)
-        for i in range(1,len(our_tree)):
+        for i in range(1, len(our_tree)):
             from_word_index = our_tree[i].tail
             to_word_index = our_tree[i].head
-            self.setWordsWeight(real_tree[from_word_index]['word'],real_tree[to_word_index]['word'],-1)
+            self.setWordsWeight(real_tree[from_word_index]['word'], real_tree[to_word_index]['word'], -1)
             self.setTagsWeight(real_tree[from_word_index]['tag'], real_tree[to_word_index]['tag'], -1)
 
-
-
-
+    # <editor-fold desc="Feature">
     def getWordBigram(self, sentence, fromNode, toNode):
         return 1 if toNode['address'] in fromNode['deps'] else 0
-
 
     def getPOSBigram(self, sentence, fromNode, toNode):
         tags = set([sentence[i]['tag'] for i in fromNode['deps']])
         return 1 if toNode['tag'] in tags else 0
+
+    def distanceFeature(self, sentence, fromNode, toNode):
+        deps = set(fromNode['deps'])
+        distances = [0]*3
+        for i in range(3):
+            if toNode['address'] in deps:
+                for j in range(i,3):
+                    distances[j] = 1
+                    return distances
+            newDeps = set()
+            for address in deps:
+                newDeps |= set(sentence[address]['deps'])
+        return distances
+    # </editor-fold>
 
 
     # <editor-fold desc="Getters & Setters">
@@ -155,3 +164,7 @@ class MSTParser:
             self.tag_weight[t1][t2] += weight
 
     # </editor-fold>
+
+
+    def OmerDontDeleteMeOmerDontDeleteMeOmerDontDeleteMeOmerDontDeleteMeOmerDontDeleteMeOmerDontDeleteMe(self):
+        pass
