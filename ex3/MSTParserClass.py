@@ -40,7 +40,7 @@ class MSTParser:
                 if fromIndex == toIndex:
                     continue
                 word2 = sentence_dict[toIndex]['word']
-                arcs.append(MST.Arc(fromIndex,self.get_weight(word1,word2),toIndex))
+                arcs.append(MSTAlgorithem.Arc(fromIndex,self.get_weight(word1,word2),toIndex))
 
         return arcs
 
@@ -51,8 +51,10 @@ class MSTParser:
     def train(self, train_sentences):
         for i in range(train_sentences.size):
             sentence = train_sentences[i].nodes
+
             full_graph = self.get_full_graph_from_dict(sentence)
-            MSTAlgorithem.min_spanning_arborescence(full_graph,0)
+            mas_arcs = MSTAlgorithem.min_spanning_arborescence(full_graph,0)
+
 
 
     # <editor-fold desc="Getters & Setters">
