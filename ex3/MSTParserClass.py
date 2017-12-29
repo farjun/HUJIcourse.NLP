@@ -129,26 +129,21 @@ class MSTParser:
         return len(self.tag_dic)
 
     def getWordsWeight(self, w1, w2):
-        if w1 not in self.word_weight:
-            self.word_weight[w1] = dict()
-        if w2 not in self.word_weight[w1]:
-            self.word_weight[w1][w2] = 0
+        if w1 not in self.word_weight or w2 not in self.word_weight[w1]:
+            return 0
         return self.word_weight[w1][w2]
 
     def setWordsWeight(self, w1, w2, weight):
         if w1 not in self.word_weight:
             self.word_weight[w1] = dict()
-
         if w2 not in self.word_weight[w1]:
             self.word_weight[w1][w2] = weight
         else:
             self.word_weight[w1][w2] += weight
 
     def getTagsWeight(self, t1, t2):
-        if t1 not in self.tag_weight:
-            self.tag_weight[t1] = dict()
-        if t2 not in self.tag_weight[t1]:
-            self.tag_weight[t1][t2] = 0
+        if t1 not in self.tag_weight or t2 not in self.tag_weight[t1]:
+            return 0
         return self.tag_weight[t1][t2]
 
     def setTagsWeight(self, t1, t2, weight):
