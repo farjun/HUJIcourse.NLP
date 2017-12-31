@@ -131,7 +131,7 @@ class MSTParser:
                 or dist not in self.word_distance_weight[w1][w2]:
             return 0
         return self.word_distance_weight[w1][w2][dist]
-
+#
     def setDistanceWeight(self, w1, w2, distance, weight) -> None:
         dist = min(distance, 4)
         if w1 not in self.word_distance_weight:
