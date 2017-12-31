@@ -10,7 +10,7 @@ class MSTParser:
         # self.sentences_words_dic = dict()
         # self.word_weight = dict()
         # self.tag_weight = dict()
-        self.word_distance_weight = dict()
+        self.map_words_distance_to_vector = dict()
 
         # total weight dict
         # self.total_word_weight = dict()
@@ -126,23 +126,24 @@ class MSTParser:
 
     def getDistanceWeight(self, w1, w2, distance) -> float:
         dist = min(distance, 4)
-        if w1 not in self.word_distance_weight \
-                or w2 not in self.word_distance_weight[w1] \
-                or dist not in self.word_distance_weight[w1][w2]:
+        if w1 not in self.map_words_distance_to_vector \
+                or w2 not in self.map_words_distance_to_vector[w1] \
+                or dist not in self.map_words_distance_to_vector[w1][w2]:
             return 0
-        return self.word_distance_weight[w1][w2][dist]
+        return self.feature_weight_vector[self.map_words_distance_to_vector[w1][w2][dist]]
 #
     def setDistanceWeight(self, w1, w2, distance, weight) -> None:
         dist = min(distance, 4)
-        if w1 not in self.word_distance_weight:
-            self.word_distance_weight[w1] = dict()
-        if w2 not in self.word_distance_weight[w1]:
-            self.word_distance_weight[w1][w2] = dict()
-        if dist not in self.word_distance_weight[w1][w2]:
-            self.word_distance_weight[w1][w2][dist] = weight
+        if w1 not in self.map_words_distance_to_vector:
+            self.map_words_distance_to_vector[w1] = dict()
+        if w2 not in self.map_words_distance_to_vector[w1]:
+            self.map_words_distance_to_vector[w1][w2] = dict()
+        if dist not in self.map_words_distance_to_vector[w1][w2]:
+            self.map_words_distance_to_vector[w1][w2][dist] = self.cur_feature_count
+            self.cur_feature_count += 1
+            self.feature_weight_vector = np.hstack((self.feature_weight_vector, [weight]))
         else:
-            self.word_distance_weight[w1][w2][dist] += weight
-
+            self.feature_weight_vector[self.map_words_distance_to_vector[w1][w2][dist]] += weight
     # </editor-fold>
 
 
