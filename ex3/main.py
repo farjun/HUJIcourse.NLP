@@ -17,7 +17,7 @@ if __name__ == '__main__':
     from time import time
     s = time()
     train_sentences, test_sentences = getTaggedSentences()
-    parser = MSTParserClass.MSTParser()
+    parser = MSTParserClass.MSTParser(True)
     parser.train(train_sentences)
     print(parser.test(test_sentences))
     print(time()-s)

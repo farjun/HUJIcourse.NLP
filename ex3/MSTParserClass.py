@@ -58,7 +58,6 @@ class MSTParser:
         self.normelize_total_weight_dict(train_sentences.size)
         self.feature_weight_vector = self.total_feature_weight_vector
 
-
     def get_full_graph_from_dict(self, sentence_dict):
         total_indexes = len(sentence_dict)
         arcs = []
@@ -68,11 +67,12 @@ class MSTParser:
                 if toIndex == fromIndex or fromIndex == 0:
                     continue
                 word2 = sentence_dict[fromIndex]
+
+                cur_weight = (self.getWordsWeightOPT(word1['word'], word2['word'])+ self.getTagsWeightOPT(word1['tag'], word2['tag']))
+                if self.distance_flag:
+                    cur_weight += self.getDistanceWeight(word1['word'], word2['word'],word1['address'] - word2['address'])
                 arcs.append(
-                    MSTAlgorithem.Arc(fromIndex, -1 *
-                                      (self.getWordsWeightOPT(word1['word'], word2['word'])
-                                       + self.getTagsWeightOPT(word1['tag'], word2['tag'])),
-                                      toIndex))
+                    MSTAlgorithem.Arc(fromIndex, -1*cur_weight,toIndex))
         return arcs
 
     def set_new_weights_by_trees(self, our_tree, real_tree):
@@ -118,7 +118,7 @@ class MSTParser:
         for i in range(len(real_tree)):
             cur_word_dict = real_tree[i]
             for deps in cur_word_dict['deps']['']:
-                if (deps,i) in our_tree_dict:
+                if (deps, i) in our_tree_dict:
                     self.total_edges_right += 1
                 self.total_edges_checked += 1
 
