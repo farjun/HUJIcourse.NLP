@@ -226,3 +226,46 @@ class MSTParser:
 
     def OmerDontDeleteMeOmerDontDeleteMeOmerDontDeleteMeOmerDontDeleteMeOmerDontDeleteMeOmerDontDeleteMe(self):
         pass
+
+
+
+
+    def calculate_error(self, our_tree, real_tree):
+        our_tree_dict = MSTAlgorithem.turn_output_to_dict(our_tree)
+        for i in range(len(real_tree)):
+            cur_word_dict = real_tree[i]
+            for deps in cur_word_dict['deps']['']:
+                if (deps, i) in our_tree_dict:
+                    self.total_edges_right += 1
+                self.total_edges_checked += 1
+
+        def set_new_weights_by_trees(self, our_tree, real_tree):
+        # add arcs of real tree by iterating the nodes (hard)
+        for i in range(len(real_tree)):
+            cur_word_dict = real_tree[i]
+            # adds all the edges of cur_word_dict by iterating on cur_word_dict['deps']['']
+            for deps in cur_word_dict['deps']['']:
+                # adds 1 to the weight 'vector' of cur_word_dict['word'] = current word , real_tree[deps]['word'] =
+                # cur neighbor
+                self.setWordsWeightOPT(cur_word_dict['word'], real_tree[deps]['word'], 1)
+                self.setTagsWeightOPT(cur_word_dict['tag'], real_tree[deps]['tag'], 1)
+                if self.distance_flag:
+                    self.setDistanceWeight(cur_word_dict['tag'], real_tree[deps]['tag'],
+                                           abs(cur_word_dict['address'] - real_tree[deps]['address']), 1)
+
+        # add arcs of our tree by iterating the arcs (easy)
+        for i in range(1, len(our_tree) + 1):
+            to_word_index = our_tree[i].tail
+            from_word_index = our_tree[i].head
+            self.setWordsWeightOPT(real_tree[from_word_index]['word'], real_tree[to_word_index]['word'], -1)
+            self.setTagsWeightOPT(real_tree[from_word_index]['tag'], real_tree[to_word_index]['tag'], -1)
+            if self.distance_flag:
+                self.setDistanceWeight(real_tree[from_word_index]['tag'], real_tree[to_word_index]['tag'],
+                                       abs(from_word_index - to_word_index), -1)
+
+        # sum up the prev vecotrs
+        diff = self.feature_weight_vector.size - self.total_feature_weight_vector.size
+        if diff:
+            self.total_feature_weight_vector = np.hstack(
+                (self.total_feature_weight_vector, np.zeros((diff,))))
+        self.total_feature_weight_vector += self.feature_weight_vector
