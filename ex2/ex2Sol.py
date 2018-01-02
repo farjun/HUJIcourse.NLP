@@ -92,7 +92,9 @@ def optimizedTest(train_sentences, test_sentences, getMatrix=False):
         tagger.setFlags(delta=1, compute_confusion_matrix=1)
     else:
         tagger.setDelta(1)
+
     errorSmooth = tagger.test(test_sentences=test_sentences)
+
     if getMatrix:
         return errorNormal, errorSmooth, tagger.getConfusionMatrix(),tagger.getTags()
     else:

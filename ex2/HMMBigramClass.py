@@ -218,7 +218,7 @@ class HMMBigramTagger:
 
     def setFlags(self, delta=0, compute_confusion_matrix=0):
         self.__delta = delta
-        self.__confusion_matrix = compute_confusion_matrix
+        self.__compute_confusion_matrix = compute_confusion_matrix
     # </editor-fold>
 
     def placeHolder(self):

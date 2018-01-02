@@ -14,11 +14,10 @@ def getTaggedSentences() -> [np.ndarray, np.ndarray]:
 
 
 if __name__ == '__main__':
-    from time import time
-    s = time()
     train_sentences, test_sentences = getTaggedSentences()
-    # parser = MSTParserClass.MSTParser(True)
-    parser = MSTParserClass.MSTParser(False)
-    parser.train(train_sentences)
-    print(parser.test(test_sentences))
-    print(time()-s)
+    parser1 = MSTParserClass.MSTParser(True)
+    parser2 = MSTParserClass.MSTParser(False)
+    parser1.train(train_sentences)
+    parser2.train(train_sentences)
+    print(parser1.test(test_sentences))
+    print(parser2.test(test_sentences))
