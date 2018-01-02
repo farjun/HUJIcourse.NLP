@@ -123,21 +123,27 @@ class MSTParser:
 
 
     def test(self, test_sentences):
+        errors = np.zeros((test_sentences.size,),dtype=np.float64)
+        i = 0
         for i in range(test_sentences.size):
             cur_sentence_tree = test_sentences[i]
             full_graph = self.get_full_graph_from_dict(cur_sentence_tree.nodes)
             mst_graph = MSTAlgorithem.min_spanning_arborescence(full_graph, 0)
-            self.calculate_error(mst_graph, cur_sentence_tree.nodes)
-        return self.total_edges_right / self.total_edges_checked
+            errors[i] = self.calculate_error(mst_graph, cur_sentence_tree.nodes)
+            i += 1
+        return np.mean(errors)
 
     def calculate_error(self, our_tree, real_tree):
         our_tree_dict = MSTAlgorithem.turn_output_to_dict(our_tree)
+        right = 0
+        checked = 0
         for i in range(len(real_tree)):
             cur_word_dict = real_tree[i]
             if cur_word_dict['head'] is not None:
                 if (i, cur_word_dict['head']) in our_tree_dict:
-                    self.total_edges_right += 1
-                self.total_edges_checked += 1
+                    right += 1
+                checked += 1
+        return right/checked
 
     # <editor-fold desc="Getters & Setters">
 
