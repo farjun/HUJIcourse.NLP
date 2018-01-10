@@ -113,11 +113,16 @@ def part2(train_sentences, test_sentences):
     print("================ Tags ====================")
     print("=" * 30)
     for i in range(len(tags)):
-        print(tags[i])
+        print(tags[i],end= "\t")
+    print()
 
 
 if __name__ == '__main__':
+
     train_sentences, test_sentences = ex2Sol.getTaggedSentences()
     part1(train_sentences, test_sentences)
     part2(train_sentences, test_sentences)
-
+    total,seen , unseen = ex2Sol.base(train_sentences,test_sentences)
+    print("loss - base :\n"
+          "total:{total}  seen:{seen} unseen:{unseen}"
+          .format(total=total, seen=seen, unseen=unseen))
