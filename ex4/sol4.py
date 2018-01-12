@@ -1,13 +1,13 @@
-import spacy
-import wikipedia
+from ex4.IterativeExtractor import IterativeExtractor
 from ex4.TreeExtractor import TreeExtractor
 
-nlp_model = spacy.load('en')
-page = wikipedia.page('Brad Pitt').content
-
-analyzed_page = nlp_model(page)
-
-
-a = TreeExtractor()
-a.extract_propn_tags(analyzed_page=analyzed_page)
-
+if __name__ == '__main__':
+    ie = IterativeExtractor("Donald Trump")
+    triplets = ie.process()
+    print(len(triplets))
+    ie = IterativeExtractor("Brad Pitt")
+    triplets = ie.process()
+    print(len(triplets))
+    ie = IterativeExtractor("Angelina Jolie")
+    triplets = ie.process()
+    print(len(triplets))
