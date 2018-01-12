@@ -11,3 +11,5 @@ if __name__ == '__main__':
     ie = IterativeExtractor("Angelina Jolie")
     triplets = ie.process()
     print(len(triplets))
+
+    #
