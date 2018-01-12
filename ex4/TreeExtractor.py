@@ -28,7 +28,7 @@ class TreeExtractor:
     def condition2(self, h1: spacy.tokens.Token, h2: spacy.tokens.Token):
         if h2.head is None or h2.head.head is None:
             return False
-        return h1.head == h2.head.head and h1.dep_ == "nsubj" and h2.dep_ == "prep" and h2.head.dep_ == "pobj"
+        return h1.head == h2.head.head and h1.dep_ == "nsubj" and h2.dep_ == "pobj" and h2.head.dep_ == "prep"
 
     def create_subject_relation_object(self,propn_childs_list):
         output = []
@@ -56,5 +56,5 @@ class TreeExtractor:
 
         propn_childs_list = self.extract_propn_childs_list_from_propn(propn_tokens)
         self.triplets = self.create_subject_relation_object(propn_childs_list)
-        print(self.triplets)
+        print(len(self.triplets))
 
