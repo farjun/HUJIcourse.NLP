@@ -22,7 +22,10 @@ class TreeExtractor:
         for token in propn_token_set:
             temp_set = list()
             temp_set.append(token)
-            temp_set.append(list(token.children))
+            for child in list(token.children):
+                if child.dep_ == "compound":
+                    temp_set += [child]
+            # temp_set.append(list(token.children))
             propn_childs_list.append(temp_set)
 
         return propn_childs_list
@@ -48,7 +51,6 @@ class TreeExtractor:
 
                 if self.condition1(h1_list[0], h2_list[0]):
                     output.append([h1_list[0].text, h1_list[0].head.text, h2_list[0].text])
-
                 elif self.condition2(h1_list[0], h2_list[0]):
                     output.append([h1_list[0].text, h1_list[0].head.text + " " + h2_list[0].head.text, h2_list[0].text])
         return output
